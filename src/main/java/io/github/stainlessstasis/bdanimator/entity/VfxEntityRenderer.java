@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.bdanimator.vfx;
+package io.github.stainlessstasis.bdanimator.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
@@ -58,7 +58,7 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
                 null
         );
         poseStack.mulPose(transformation);
-        poseStack.translate(-0.5f, -0.5f, -0.5f);
+        poseStack.translate(state.pivotOffset.x, state.pivotOffset.y, state.pivotOffset.z);
 
         int light = state.brightnessOverride != -1 ? state.brightnessOverride : state.lightCoords;
         state.blockModel.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);

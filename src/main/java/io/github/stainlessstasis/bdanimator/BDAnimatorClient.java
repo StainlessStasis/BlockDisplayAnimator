@@ -2,7 +2,7 @@ package io.github.stainlessstasis.bdanimator;
 
 import io.github.stainlessstasis.bdanimator.animation.AnimationTest;
 import io.github.stainlessstasis.bdanimator.registry.BDAnimatorEntities;
-import io.github.stainlessstasis.bdanimator.vfx.VfxEntityRenderer;
+import io.github.stainlessstasis.bdanimator.entity.VfxEntityRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;

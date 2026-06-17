@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.bdanimator.vfx;
+package io.github.stainlessstasis.bdanimator.entity;
 
 import io.github.stainlessstasis.bdanimator.animation.VfxAnimation;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -12,6 +12,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
+
 @SuppressWarnings("NullableProblems")
 public class VfxEntity extends Entity {
     private int brightnessOverride = -1;
@@ -20,6 +22,7 @@ public class VfxEntity extends Entity {
     private long animationStartTick;
     private int animationDurationTicks;
     private float lastProgress = 1f;
+    private @Nullable Consumer<VfxEntity> onTick;
 
     public VfxEntity(EntityType<? extends Entity> type, Level level) {
         super(type, level);
@@ -53,11 +56,16 @@ public class VfxEntity extends Entity {
         if (currentAnimation != null && tickCount - animationStartTick >= animationDurationTicks) {
             discard();
         }
+
+        if (onTick != null) {
+            onTick.accept(this);
+        }
     }
 
     public @Nullable VfxAnimation getCurrentAnimation() { return currentAnimation; }
     public int getBrightnessOverride() { return brightnessOverride; }
     public void setBrightnessOverride(int brightness) { this.brightnessOverride = brightness; }
+    public void setOnTick(Consumer<VfxEntity> onTick) { this.onTick = onTick; }
 
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {}
     @Override public boolean hurtServer(ServerLevel level, DamageSource source, float v) { return false; }

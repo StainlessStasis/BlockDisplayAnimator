@@ -2,7 +2,7 @@ package io.github.stainlessstasis.bdanimator.animation;
 
 import io.github.stainlessstasis.bdanimator.easing.Easing;
 import io.github.stainlessstasis.bdanimator.registry.BDAnimatorEntities;
-import io.github.stainlessstasis.bdanimator.vfx.VfxEntity;
+import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;

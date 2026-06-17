@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.bdanimator.registry;
 
 import io.github.stainlessstasis.bdanimator.BDAnimator;
-import io.github.stainlessstasis.bdanimator.vfx.VfxEntity;
+import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -26,7 +26,7 @@ public class BDAnimatorEntities {
                     .noSummon()
                     .fireImmune()
                     .canSpawnFarFromPlayer()
-                    .clientTrackingRange(8)
+                    .clientTrackingRange(16)
                     .build(ResourceKey.create(
                             Registries.ENTITY_TYPE,
                             Identifier.fromNamespaceAndPath(BDAnimator.MODID, "vfx_entity")

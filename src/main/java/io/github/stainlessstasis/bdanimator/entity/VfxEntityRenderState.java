@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.bdanimator.vfx;
+package io.github.stainlessstasis.bdanimator.entity;
 
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -15,5 +15,6 @@ public class VfxEntityRenderState extends EntityRenderState {
     public final Quaternionf rotation = new Quaternionf();
     public final Vector3f overlayColor = new Vector3f(1f);
     public final float[] overlayIntensity = new float[]{0f};
+    public final Vector3f pivotOffset = new Vector3f(-0.5f);
     public int brightnessOverride = -1;
 }
