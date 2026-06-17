@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.bdanimator;
 
+import io.github.stainlessstasis.bdanimator.registry.BDAnimatorEntities;
 import net.neoforged.fml.common.EventBusSubscriber;
 import org.slf4j.Logger;
 
@@ -18,6 +19,7 @@ public class BDAnimator {
 
     public BDAnimator(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
+        BDAnimatorEntities.register(modEventBus);
 //        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
