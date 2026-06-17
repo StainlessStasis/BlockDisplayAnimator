@@ -21,6 +21,7 @@ public class VfxEntity extends Entity {
     private int animationDurationTicks;
     private float lastProgress = 0f;
     private @Nullable Consumer<VfxEntity> onTick;
+    private @Nullable Consumer<VfxEntity> onRemoval;
 
     private int brightnessOverride = -1;
     private int ticksToPersist = 0;
@@ -55,6 +56,7 @@ public class VfxEntity extends Entity {
 
     @Override
     public void tick() {
+        System.out.println("TICKING | DESPAWN TIMER: "+despawnTimer);
         super.tick();
 
         if (onTick != null) {
@@ -96,10 +98,21 @@ public class VfxEntity extends Entity {
         }
     }
 
+    @Override
+    public void onRemoval(RemovalReason reason) {
+        super.onRemoval(reason);
+        if (onRemoval != null) {
+            onRemoval.accept(this);
+        }
+    }
+
     public @Nullable VfxAnimation getCurrentAnimation() { return currentAnimation; }
     public int getBrightnessOverride() { return brightnessOverride; }
     public void setBrightnessOverride(int brightness) { this.brightnessOverride = brightness; }
+
     public void setOnTick(Consumer<VfxEntity> onTick) { this.onTick = onTick; }
+    public void setOnRemoval(Consumer<VfxEntity> onRemoval) { this.onRemoval = onRemoval; }
+
     public int getTicksToPersist() { return this.ticksToPersist; }
     public void setTicksToPersist(int ticks) { this.ticksToPersist = ticks; }
     public boolean isPersistInfinite() { return this.isPersistInfinite; }

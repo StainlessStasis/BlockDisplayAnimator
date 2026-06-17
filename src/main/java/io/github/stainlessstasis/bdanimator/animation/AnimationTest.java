@@ -87,7 +87,6 @@ public class AnimationTest {
         VfxEntity entity = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
         entity.setPos(pos);
-        entity.setInfinitePersist(true);
         level.addEntity(entity);
 
         VfxAnimation anim = VfxAnimationBuilder.create()
