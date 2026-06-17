@@ -43,7 +43,7 @@ public class VfxEntity extends Entity {
         if (animationDurationTicks <= 0) return 1f;
         float ticksSince = (float)(this.tickCount - this.animationStartTick);
         float t = Math.clamp(
-                Mth.lerp(ticksSince + partialTick, 0f, animationDurationTicks),
+                Mth.inverseLerp(ticksSince + partialTick, 0f, animationDurationTicks),
                 0f, 1f
         );
         this.lastProgress = t;
