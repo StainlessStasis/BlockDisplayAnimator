@@ -16,13 +16,16 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("NullableProblems")
 public class VfxEntity extends Entity {
-    private int brightnessOverride = -1;
-
     private @Nullable VfxAnimation currentAnimation;
     private long animationStartTick;
     private int animationDurationTicks;
     private float lastProgress = 0f;
     private @Nullable Consumer<VfxEntity> onTick;
+
+    private int brightnessOverride = -1;
+    private int ticksToPersist = 0;
+    private int despawnTimer = 0;
+    private boolean isPersistInfinite = false;
 
     public VfxEntity(EntityType<? extends Entity> type, Level level) {
         super(type, level);
@@ -77,8 +80,19 @@ public class VfxEntity extends Entity {
                 if (currentAnimation.onEnd() != null) {
                     currentAnimation.onEnd().accept(this);
                 }
-                discard();
+                currentAnimation = null;
+                tickDespawn();
             }
+        } else {
+            tickDespawn();
+        }
+    }
+
+    protected void tickDespawn() {
+        if (isPersistInfinite) return;
+        despawnTimer++;
+        if (despawnTimer >= ticksToPersist) {
+            discard();
         }
     }
 
@@ -86,6 +100,10 @@ public class VfxEntity extends Entity {
     public int getBrightnessOverride() { return brightnessOverride; }
     public void setBrightnessOverride(int brightness) { this.brightnessOverride = brightness; }
     public void setOnTick(Consumer<VfxEntity> onTick) { this.onTick = onTick; }
+    public int getTicksToPersist() { return this.ticksToPersist; }
+    public void setTicksToPersist(int ticks) { this.ticksToPersist = ticks; }
+    public boolean isPersistInfinite() { return this.isPersistInfinite; }
+    public void setInfinitePersist(boolean value) { this.isPersistInfinite = value; }
 
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {}
     @Override public boolean hurtServer(ServerLevel level, DamageSource source, float v) { return false; }
