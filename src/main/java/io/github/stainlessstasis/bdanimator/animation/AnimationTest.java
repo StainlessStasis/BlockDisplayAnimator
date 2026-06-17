@@ -90,6 +90,19 @@ public class AnimationTest {
         level.addEntity(entity);
 
         VfxAnimation anim = VfxAnimationBuilder.create()
+                .onStart(e -> {
+                    System.out.println("STARTED");
+                })
+                .onEnd(e -> {
+                    System.out.println("LOOPED");
+                })
+                .onLoop(e -> {
+                    System.out.println("LOOPED");
+                })
+                .onKeyframeReached(0.5f, e -> {
+                    System.out.println("HALF");
+                })
+//                .loop(2)
                 .blockState(Blocks.MAGMA_BLOCK.defaultBlockState(), b -> {})
                 .translation(0, 0, 0, t -> t
                         .addKeyframe(0.25f, 0, 3, 0, Easing.EASE_OUT_QUAD)
@@ -107,7 +120,7 @@ public class AnimationTest {
                         .addIntensityKeyframe(0.8f, 0.5f, Easing.EASE_OUT_QUAD)
                         .addColorKeyframe(1f, new Vector3f(0.1f))
                         .addIntensityKeyframe(1f, 0f, Easing.EASE_IN_QUAD))
-                .build(120);
+                .build(60);
 
         entity.playAnimation(anim);
     }

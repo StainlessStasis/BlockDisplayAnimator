@@ -27,6 +27,7 @@ public class VfxEntity extends Entity {
     private int ticksToPersist = 0;
     private int despawnTimer = 0;
     private boolean isPersistInfinite = false;
+    private int loopsCompleted = 0;
 
     public VfxEntity(EntityType<? extends Entity> type, Level level) {
         super(type, level);
@@ -56,7 +57,6 @@ public class VfxEntity extends Entity {
 
     @Override
     public void tick() {
-        System.out.println("TICKING | DESPAWN TIMER: "+despawnTimer);
         super.tick();
 
         if (onTick != null) {
@@ -79,11 +79,24 @@ public class VfxEntity extends Entity {
             }
 
             if (tickCount - animationStartTick >= animationDurationTicks) {
-                if (currentAnimation.onEnd() != null) {
-                    currentAnimation.onEnd().accept(this);
+                int loopCount = currentAnimation.loopCount();
+                boolean shouldLoop = loopCount < 0 || loopsCompleted < loopCount;
+
+                if (shouldLoop) {
+                    loopsCompleted++;
+                    lastProgress = 0f;
+                    animationStartTick = tickCount;
+                    if (currentAnimation.onLoop() != null) {
+                        currentAnimation.onLoop().accept(this);
+                    }
+                } else {
+                    if (currentAnimation.onEnd() != null) {
+                        currentAnimation.onEnd().accept(this);
+                    }
+                    currentAnimation = null;
+                    loopsCompleted = 0;
+                    tickDespawn();
                 }
-                currentAnimation = null;
-                tickDespawn();
             }
         } else {
             tickDespawn();

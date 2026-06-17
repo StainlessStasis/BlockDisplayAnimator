@@ -18,7 +18,9 @@ public record VfxAnimation(
         KeyframedChannel<Float, float[]> overlayIntensityChannel,
         BlockStateChannel blockStateChannel,
         int durationTicks,
+        int loopCount,
         @Nullable Consumer<VfxEntity> onStart,
         @Nullable Consumer<VfxEntity> onEnd,
+        @Nullable Consumer<VfxEntity> onLoop,
         Map<Float, Consumer<VfxEntity>> keyframeCallbacks
 ) {}

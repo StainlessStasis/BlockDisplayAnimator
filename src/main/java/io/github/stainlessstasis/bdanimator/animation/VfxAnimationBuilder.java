@@ -68,6 +68,8 @@ public class VfxAnimationBuilder {
     private BlockStateChannel blockStateChannel;
     private @Nullable Consumer<VfxEntity> onStart;
     private @Nullable Consumer<VfxEntity> onEnd;
+    private @Nullable Consumer<VfxEntity> onLoop;
+    private int loopCount = 0;
     private final Map<Float, Consumer<VfxEntity>> keyframeCallbacks = new LinkedHashMap<>();
 
     public VfxAnimationBuilder onStart(Consumer<VfxEntity> callback) {
@@ -76,6 +78,19 @@ public class VfxAnimationBuilder {
     }
     public VfxAnimationBuilder onEnd(Consumer<VfxEntity> callback) {
         this.onEnd = callback;
+
+        return this;
+    }
+    public VfxAnimationBuilder onLoop(Consumer<VfxEntity> callback) {
+        this.onLoop = callback;
+        return this;
+    }
+    public VfxAnimationBuilder loop(int count) {
+        this.loopCount = count;
+        return this;
+    }
+    public VfxAnimationBuilder loopInfinite() {
+        this.loopCount = -1;
         return this;
     }
     public VfxAnimationBuilder onKeyframeReached(float time, Consumer<VfxEntity> callback) {
@@ -174,7 +189,7 @@ public class VfxAnimationBuilder {
         if (overlayIntensityChannel == null) overlayIntensityChannel = DEFAULT_OVERLAY_INTENSITY;
         if (blockStateChannel == null) blockStateChannel = DEFAULT_BLOCK_STATE;
         return new VfxAnimation(translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel,
-                durationTicks, onStart, onEnd, keyframeCallbacks
+                durationTicks, loopCount, onStart, onEnd, onLoop, keyframeCallbacks
         );
     }
 
