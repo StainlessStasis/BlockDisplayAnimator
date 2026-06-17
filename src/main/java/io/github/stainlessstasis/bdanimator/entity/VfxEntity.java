@@ -59,14 +59,15 @@ public class VfxEntity extends Entity {
         }
 
         if (currentAnimation != null) {
-            if (tickCount - animationStartTick == 0 && currentAnimation.onStart() != null) {
+            if (tickCount - animationStartTick == 1 && currentAnimation.onStart() != null) {
                 currentAnimation.onStart().accept(this);
             }
 
             if (currentAnimation.keyframeCallbacks() != null) {
+                float previousProgress = this.lastProgress;
                 float progress = getAnimationProgress(0f);
                 currentAnimation.keyframeCallbacks().forEach((time, callback) -> {
-                    if (lastProgress < time && progress >= time) {
+                    if (previousProgress < time && progress >= time) {
                         callback.accept(this);
                     }
                 });

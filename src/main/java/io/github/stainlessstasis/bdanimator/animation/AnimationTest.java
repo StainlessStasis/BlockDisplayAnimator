@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -86,12 +87,21 @@ public class AnimationTest {
         VfxEntity entity = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
         entity.setPos(pos);
-        entity.setOnTick(e -> {
-            System.out.println("TICK: "+e.tickCount);
-        });
         level.addEntity(entity);
 
         VfxAnimation anim = VfxAnimationBuilder.create()
+                .onStart(e -> {
+                    System.out.println("ANIMATION STARTED!");
+                    player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP);
+                })
+                .onEnd(e -> {
+                    System.out.println("ANIMATION ENDED!");
+                    player.playSound(SoundEvents.ALLAY_DEATH);
+                })
+                .onKeyframeReached(0.5f, e-> {
+                    System.out.println("HALF WAY MARK REACHED!");
+                    player.playSound(SoundEvents.FLINTANDSTEEL_USE);
+                })
                 .blockState(Blocks.MAGMA_BLOCK.defaultBlockState(), b -> {})
                 .translation(0, 0, 0, t -> t
                         .addKeyframe(0.25f, 0, 3, 0, Easing.EASE_OUT_QUAD)
