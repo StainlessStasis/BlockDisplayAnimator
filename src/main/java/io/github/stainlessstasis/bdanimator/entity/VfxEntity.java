@@ -21,7 +21,7 @@ public class VfxEntity extends Entity {
     private @Nullable VfxAnimation currentAnimation;
     private long animationStartTick;
     private int animationDurationTicks;
-    private float lastProgress = 1f;
+    private float lastProgress = 0f;
     private @Nullable Consumer<VfxEntity> onTick;
 
     public VfxEntity(EntityType<? extends Entity> type, Level level) {
@@ -43,7 +43,7 @@ public class VfxEntity extends Entity {
         if (animationDurationTicks <= 0) return 1f;
         float ticksSince = (float)(this.tickCount - this.animationStartTick);
         float t = Math.clamp(
-                Mth.inverseLerp(ticksSince + partialTick, 0f, animationDurationTicks),
+                Mth.lerp(ticksSince + partialTick, 0f, animationDurationTicks),
                 0f, 1f
         );
         this.lastProgress = t;
@@ -53,12 +53,31 @@ public class VfxEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (currentAnimation != null && tickCount - animationStartTick >= animationDurationTicks) {
-            discard();
-        }
 
         if (onTick != null) {
             onTick.accept(this);
+        }
+
+        if (currentAnimation != null) {
+            if (tickCount - animationStartTick == 0 && currentAnimation.onStart() != null) {
+                currentAnimation.onStart().accept(this);
+            }
+
+            if (currentAnimation.keyframeCallbacks() != null) {
+                float progress = getAnimationProgress(0f);
+                currentAnimation.keyframeCallbacks().forEach((time, callback) -> {
+                    if (lastProgress < time && progress >= time) {
+                        callback.accept(this);
+                    }
+                });
+            }
+
+            if (tickCount - animationStartTick >= animationDurationTicks) {
+                if (currentAnimation.onEnd() != null) {
+                    currentAnimation.onEnd().accept(this);
+                }
+                discard();
+            }
         }
     }
 

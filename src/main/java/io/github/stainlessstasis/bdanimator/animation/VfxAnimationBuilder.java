@@ -5,14 +5,18 @@ import io.github.stainlessstasis.bdanimator.channel.Interpolators;
 import io.github.stainlessstasis.bdanimator.channel.Keyframe;
 import io.github.stainlessstasis.bdanimator.channel.KeyframedChannel;
 import io.github.stainlessstasis.bdanimator.easing.Easing;
+import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class VfxAnimationBuilder {
@@ -52,7 +56,6 @@ public class VfxAnimationBuilder {
     private static Vector3f toVector3f(Vec3 vec) {
         return new Vector3f((float) vec.x, (float) vec.y, (float) vec.z);
     }
-
     private static Vector3f toVector3f(float x, float y, float z) {
         return new Vector3f(x, y, z);
     }
@@ -63,6 +66,22 @@ public class VfxAnimationBuilder {
     private KeyframedChannel<Vector3f, Vector3f> overlayColorChannel;
     private KeyframedChannel<Float, float[]> overlayIntensityChannel;
     private BlockStateChannel blockStateChannel;
+    private @Nullable Consumer<VfxEntity> onStart;
+    private @Nullable Consumer<VfxEntity> onEnd;
+    private final Map<Float, Consumer<VfxEntity>> keyframeCallbacks = new LinkedHashMap<>();
+
+    public VfxAnimationBuilder onStart(Consumer<VfxEntity> callback) {
+        this.onStart = callback;
+        return this;
+    }
+    public VfxAnimationBuilder onEnd(Consumer<VfxEntity> callback) {
+        this.onEnd = callback;
+        return this;
+    }
+    public VfxAnimationBuilder onKeyframeReached(float time, Consumer<VfxEntity> callback) {
+        this.keyframeCallbacks.put(time, callback);
+        return this;
+    }
 
     public VfxAnimationBuilder translation(Vector3f start, Consumer<Vector3fBuilder> builderConsumer) {
         Vector3fBuilder builder = new Vector3fBuilder(start, kfs -> translationChannel = new KeyframedChannel<>(kfs, Interpolators::lerpVector3f));
@@ -154,7 +173,9 @@ public class VfxAnimationBuilder {
         if (overlayColorChannel == null) overlayColorChannel = DEFAULT_OVERLAY_COLOR;
         if (overlayIntensityChannel == null) overlayIntensityChannel = DEFAULT_OVERLAY_INTENSITY;
         if (blockStateChannel == null) blockStateChannel = DEFAULT_BLOCK_STATE;
-        return new VfxAnimation(translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel, durationTicks);
+        return new VfxAnimation(translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel,
+                durationTicks, onStart, onEnd, keyframeCallbacks
+        );
     }
 
     public static class Vector3fBuilder {
