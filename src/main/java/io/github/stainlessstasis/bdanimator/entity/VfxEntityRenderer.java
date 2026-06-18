@@ -11,6 +11,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
@@ -94,43 +97,57 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
 
     private void applyOverlayColor(VfxEntityRenderState state, PoseStack poseStack, SubmitNodeCollector collector) {
         if (state.overlayIntensity[0] <= 0.01f) return;
-        collector.submitCustomGeometry(poseStack, RenderTypes.debugFilledBox(), (pose, buffer) -> {
-            int r = (int)(state.overlayColor.x * 255);
-            int g = (int)(state.overlayColor.y * 255);
-            int b = (int)(state.overlayColor.z * 255);
-            int a = (int)(state.overlayIntensity[0] * 255);
-            Matrix4f mat = pose.pose();
 
-            // Bottom
-            buffer.addVertex(mat, 0, 0, 0).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 0, 0).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 0, 1).setColor(r, g, b, a);
-            buffer.addVertex(mat, 0, 0, 1).setColor(r, g, b, a);
-            // Top
-            buffer.addVertex(mat, 0, 1, 1).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 1, 1).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 1, 0).setColor(r, g, b, a);
-            buffer.addVertex(mat, 0, 1, 0).setColor(r, g, b, a);
-            // North
-            buffer.addVertex(mat, 1, 0, 0).setColor(r, g, b, a);
-            buffer.addVertex(mat, 0, 0, 0).setColor(r, g, b, a);
-            buffer.addVertex(mat, 0, 1, 0).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 1, 0).setColor(r, g, b, a);
-            // South
-            buffer.addVertex(mat, 0, 0, 1).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 0, 1).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 1, 1).setColor(r, g, b, a);
-            buffer.addVertex(mat, 0, 1, 1).setColor(r, g, b, a);
-            // West
-            buffer.addVertex(mat, 0, 0, 0).setColor(r, g, b, a);
-            buffer.addVertex(mat, 0, 0, 1).setColor(r, g, b, a);
-            buffer.addVertex(mat, 0, 1, 1).setColor(r, g, b, a);
-            buffer.addVertex(mat, 0, 1, 0).setColor(r, g, b, a);
-            // East
-            buffer.addVertex(mat, 1, 0, 1).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 0, 0).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 1, 0).setColor(r, g, b, a);
-            buffer.addVertex(mat, 1, 1, 1).setColor(r, g, b, a);
+        VoxelShape shape = state.blockState.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
+        if (shape.isEmpty()) return;
+
+        int r = (int)(state.overlayColor.x * 255);
+        int g = (int)(state.overlayColor.y * 255);
+        int b = (int)(state.overlayColor.z * 255);
+        int a = (int)(state.overlayIntensity[0] * 255);
+
+        shape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> {
+            float x1 = (float) minX;
+            float y1 = (float) minY;
+            float z1 = (float) minZ;
+            float x2 = (float) maxX;
+            float y2 = (float) maxY;
+            float z2 = (float) maxZ;
+
+            collector.submitCustomGeometry(poseStack, RenderTypes.debugFilledBox(), (pose, buffer) -> {
+                Matrix4f mat = pose.pose();
+
+                // Bottom
+                buffer.addVertex(mat, x1, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y1, z2).setColor(r, g, b, a);
+                buffer.addVertex(mat, x1, y1, z2).setColor(r, g, b, a);
+                // Top
+                buffer.addVertex(mat, x1, y2, z2).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y2, z2).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y2, z1).setColor(r, g, b, a);
+                buffer.addVertex(mat, x1, y2, z1).setColor(r, g, b, a);
+                // North
+                buffer.addVertex(mat, x2, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(mat, x1, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(mat, x1, y2, z1).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y2, z1).setColor(r, g, b, a);
+                // South
+                buffer.addVertex(mat, x1, y1, z2).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y1, z2).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y2, z2).setColor(r, g, b, a);
+                buffer.addVertex(mat, x1, y2, z2).setColor(r, g, b, a);
+                // West
+                buffer.addVertex(mat, x1, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(mat, x1, y1, z2).setColor(r, g, b, a);
+                buffer.addVertex(mat, x1, y2, z2).setColor(r, g, b, a);
+                buffer.addVertex(mat, x1, y2, z1).setColor(r, g, b, a);
+                // East
+                buffer.addVertex(mat, x2, y1, z2).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y1, z1).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y2, z1).setColor(r, g, b, a);
+                buffer.addVertex(mat, x2, y2, z2).setColor(r, g, b, a);
+            });
         });
     }
 

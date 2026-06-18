@@ -90,7 +90,7 @@ public class AnimationTest {
 
         VfxAnimation anim1 = VfxAnimationBuilder.create()
                 .onStart(e -> player.sendSystemMessage(Component.literal("Anim 1")))
-                .blockState(Blocks.MAGMA_BLOCK.defaultBlockState(), b -> {})
+                .blockState(Blocks.ANVIL.defaultBlockState(), b -> {})
                 .scale(1f, s -> s
                         .addKeyframe(1f, 1.5f, 0.4f, 1.5f, Easing.EASE_OUT_QUAD))
                 .overlay(1f, 0f, 0f, 0f, o -> o
@@ -100,7 +100,7 @@ public class AnimationTest {
         VfxAnimation anim2 = VfxAnimationBuilder.create()
                 .onStart(e -> player.sendSystemMessage(Component.literal("Anim 2")))
                 .inheritScale()
-                .blockState(Blocks.SHROOMLIGHT.defaultBlockState(), b -> {})
+                .blockState(Blocks.LECTERN.defaultBlockState(), b -> {})
                 .translation(t -> t
                         .addKeyframe(1f, 0f, 6f, 0f, Easing.EASE_OUT_EXPO))
                 .scale(s -> s
