@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.bdanimator.entity;
 
+import io.github.stainlessstasis.bdanimator.animation.BillboardMode;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.level.block.Blocks;
@@ -17,4 +18,9 @@ public class VfxEntityRenderState extends EntityRenderState {
     public final float[] overlayIntensity = new float[]{0f};
     public Vector3f rotationPivot = new Vector3f(0.5f);
     public int brightnessOverride = -1;
+    public BillboardMode billboardMode = BillboardMode.FIXED;
+    public float entityXRot = 0f;
+    public float entityYRot = 0f;
+    public float cameraXRot = 0f;
+    public float cameraYRot = 0f;
 }

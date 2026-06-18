@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.bdanimator.entity;
 
+import io.github.stainlessstasis.bdanimator.animation.BillboardMode;
 import io.github.stainlessstasis.bdanimator.animation.VfxAnimation;
 import io.github.stainlessstasis.bdanimator.animation.VfxSnapshot;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -36,6 +37,8 @@ public class VfxEntity extends Entity {
 
     private float cullingRadius = 32f;
     private boolean isAffectedByCulling = true;
+
+    private BillboardMode billboardMode = BillboardMode.FIXED;
 
     public VfxEntity(EntityType<? extends Entity> type, Level level) {
         super(type, level);
@@ -255,6 +258,9 @@ public class VfxEntity extends Entity {
     public void setCullingRadius(float radius) { this.cullingRadius = radius; }
     public boolean isAffectedByCulling() { return isAffectedByCulling; }
     public void setAffectedByCulling(boolean affectedByCulling) { this.isAffectedByCulling = affectedByCulling; }
+
+    public BillboardMode getBillboardMode() { return billboardMode; }
+    public void setBillboardMode(BillboardMode mode) { this.billboardMode = mode; }
 
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {}
     @Override public boolean hurtServer(ServerLevel level, DamageSource source, float v) { return false; }

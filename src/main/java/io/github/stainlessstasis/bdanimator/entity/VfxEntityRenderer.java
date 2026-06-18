@@ -3,6 +3,7 @@ package io.github.stainlessstasis.bdanimator.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
 import io.github.stainlessstasis.bdanimator.animation.VfxAnimation;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.entity.DisplayRenderer;
@@ -16,9 +17,11 @@ import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.jspecify.annotations.NonNull;
 
 public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRenderState> {
+    public static final float PI_180 = (float) (Math.PI/180f);
     protected final BlockModelResolver blockModelResolver;
 
     public VfxEntityRenderer(EntityRendererProvider.Context context) {
@@ -71,6 +74,16 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         state.brightnessOverride = entity.getBrightnessOverride();
         state.rotationPivot = anim.rotationPivot();
 
+        state.billboardMode = entity.getBillboardMode();
+        state.entityYRot = entity.getYRot(partialTicks);
+        state.entityXRot = entity.getXRot(partialTicks);
+
+        Camera camera = this.entityRenderDispatcher.camera;
+        if (camera != null) {
+            state.cameraXRot = camera.xRot();
+            state.cameraYRot = camera.yRot();
+        }
+
         blockModelResolver.update(state.blockModel, state.blockState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
     }
 
@@ -78,6 +91,8 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
     public void submit(@NonNull VfxEntityRenderState state, @NonNull PoseStack poseStack, @NonNull SubmitNodeCollector collector, @NonNull CameraRenderState camera) {
         super.submit(state, poseStack, collector, camera);
         poseStack.pushPose();
+
+        poseStack.mulPose(calculateOrientation(state, new Quaternionf()));
 
         Transformation transformation = new Transformation(
                 state.translation,
@@ -94,6 +109,23 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         applyOverlayColor(state, poseStack, collector);
 
         poseStack.popPose();
+    }
+
+    private Quaternionf calculateOrientation(VfxEntityRenderState state, Quaternionf output) {
+        return switch (state.billboardMode) {
+            case FIXED -> output.rotationYXZ(-PI_180 * state.entityYRot, PI_180 * state.entityXRot, 0f);
+            case HORIZONTAL -> output.rotationYXZ(-PI_180 * state.entityYRot, PI_180 * transformXRot(state.cameraXRot), 0f);
+            case VERTICAL -> output.rotationYXZ(-PI_180 * transformYRot(state.cameraYRot), PI_180 * state.entityXRot, 0f);
+            case CENTER -> output.rotationYXZ(-PI_180 * transformYRot(state.cameraYRot), PI_180 * transformXRot(state.cameraXRot), 0f);
+        };
+    }
+
+    private static float transformYRot(float cameraYRot) {
+        return cameraYRot - 180.0F;
+    }
+
+    private static float transformXRot(float cameraXRot) {
+        return -cameraXRot;
     }
 
     private void applyOverlayColor(VfxEntityRenderState state, PoseStack poseStack, SubmitNodeCollector collector) {

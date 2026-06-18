@@ -56,4 +56,6 @@ public record VfxAnimation(
             return entity.getAnimationProgress(partialTick);
         }
     }
+
+
 }
