@@ -41,6 +41,18 @@ public class InterpolatedChannel<S, T> implements Channel<T> {
         return destination;
     }
 
+    public S resolveValueAt(float t, @Nullable S fallbackStartValue) {
+        Keyframe<S> next = keyframes.getLast();
+        for (int i = 0; i < keyframes.size() - 1; i++) {
+            if (t <= keyframes.get(i + 1).time()) {
+                next = keyframes.get(i + 1);
+                break;
+            }
+        }
+        boolean endIsFallback = (next == keyframes.get(1) && keyframes.size() == 2 && fallbackStartValue != null);
+        return endIsFallback ? fallbackStartValue : next.value();
+    }
+
     public S getLastKeyframeValue() {
         return keyframes.getLast().value();
     }

@@ -51,22 +51,31 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         if (anim.translationModifier() != null) {
             anim.translationModifier().apply(state.translation, context);
         }
+        entity.updateRenderedTranslation(state.translation);
+
         anim.scaleChannel().evaluate(t, state.scale, anim.inheritScale() ? snapshot.scale() : null);
         if (anim.scaleModifier() != null) {
             anim.scaleModifier().apply(state.scale, context);
         }
+        entity.updateRenderedScale(state.scale);
+
         anim.rotationChannel().evaluate(t, state.rotation, anim.inheritRotation() ? snapshot.rotation() : null);
         if (anim.rotationModifier() != null) {
             anim.rotationModifier().apply(state.rotation, context);
         }
+        // rotation uses resolveValueAt instead of storing in a field
+
         anim.overlayColorChannel().evaluate(t, state.overlayColor, anim.inheritOverlayColor() ? snapshot.overlayColor() : null);
         if (anim.overlayColorModifier() != null) {
             anim.overlayColorModifier().apply(state.overlayColor, context);
         }
+        entity.updateRenderedOverlayColor(state.overlayColor);
+
         anim.overlayIntensityChannel().evaluate(t, state.overlayIntensity, anim.inheritOverlayIntensity() ? snapshot.overlayIntensity() : null);
         if (anim.overlayIntensityModifier() != null) {
             anim.overlayIntensityModifier().apply(state.overlayIntensity, context);
         }
+        entity.updateRenderedOverlayIntensity(state.overlayIntensity[0]);
 
         var blockChannel = anim.blockStateChannel();
         if (blockChannel != null) {

@@ -32,9 +32,13 @@ import java.util.function.Consumer;
 @SuppressWarnings("NullableProblems")
 public class VfxEntity extends Entity {
     private VfxSnapshot lastSnapshot = VfxSnapshot.DEFAULT;
-    private BlockState lastBlockState = Blocks.AIR.defaultBlockState();
+    private final Vector3f lastRenderedTranslation = new Vector3f();
+    private final Vector3f lastRenderedScale = new Vector3f(1f);
+    private final Vector3f lastRenderedOverlayColor = new Vector3f(1f);
+    private final float[] lastRenderedOverlayIntensity = new float[]{0f};
+    private BlockState lastRenderedBlockState = Blocks.AIR.defaultBlockState();
     private final BlockModelRenderState blockModel = new BlockModelRenderState();
-    private ItemStack lastItemStack = ItemStack.EMPTY;
+    private ItemStack lastRenderedItemStack = ItemStack.EMPTY;
     private final ItemStackRenderState itemModel = new ItemStackRenderState();
 
     private final Deque<VfxAnimation> animationQueue = new ArrayDeque<>();
@@ -151,20 +155,39 @@ public class VfxEntity extends Entity {
     }
 
     private VfxSnapshot captureEndSnapshot(VfxAnimation animation) {
+        var prev = this.lastSnapshot;
+        System.out.println("CAPTURE END SNAPSHOT");
+        System.out.println("PREVIOUS: "+prev);
+        System.out.println("Translation: "+ lastRenderedTranslation);
+        System.out.println("Scale: "+ lastRenderedScale);
+        System.out.println("Rotation: "+ animation.rotationChannel().resolveValueAt(
+                1f, animation.inheritRotation() ? prev.rotation() : VfxSnapshot.DEFAULT.rotation()
+        ));
+        System.out.println("Color: "+ lastRenderedOverlayColor);
+        System.out.println("Intensity: "+ lastRenderedOverlayIntensity[0]);
+        System.out.println(lastRenderedBlockState);
+        System.out.println(lastRenderedItemStack);
         return new VfxSnapshot(
-                animation.translationChannel().getLastKeyframeValue(),
-                animation.scaleChannel().getLastKeyframeValue(),
-                animation.rotationChannel().getLastKeyframeValue(),
-                animation.overlayColorChannel().getLastKeyframeValue(),
-                animation.overlayIntensityChannel().getLastKeyframeValue(),
-                animation.blockStateChannel().getLastKeyframeValue(),
-                animation.itemStackChannel().getLastKeyframeValue()
+                lastRenderedTranslation,
+                lastRenderedScale,
+                animation.rotationChannel().resolveValueAt(
+                        1f, animation.inheritRotation() ? prev.rotation() : VfxSnapshot.DEFAULT.rotation()
+                ),
+                lastRenderedOverlayColor,
+                lastRenderedOverlayIntensity[0],
+                lastRenderedBlockState,
+                lastRenderedItemStack
         );
     }
 
+    public void updateRenderedTranslation(Vector3f value) { this.lastRenderedTranslation.set(value); }
+    public void updateRenderedScale(Vector3f value) { this.lastRenderedScale.set(value); }
+    public void updateRenderedOverlayColor(Vector3f value) { this.lastRenderedOverlayColor.set(value); }
+    public void updateRenderedOverlayIntensity(float value) { this.lastRenderedOverlayIntensity[0] = value; }
+
     public void updateBlockModel(BlockState currentState, BlockModelResolver resolver) {
-        if (this.lastBlockState != currentState) {
-            this.lastBlockState = currentState;
+        if (this.lastRenderedBlockState != currentState) {
+            this.lastRenderedBlockState = currentState;
             resolver.update(this.blockModel, currentState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
         }
     }
@@ -173,8 +196,8 @@ public class VfxEntity extends Entity {
     }
 
     public void updateItemModel(ItemStack currentStack, ItemModelResolver resolver) {
-        if (this.lastItemStack == null || !ItemStack.isSameItemSameComponents(this.lastItemStack, currentStack)) {
-            this.lastItemStack = currentStack.copy();
+        if (this.lastRenderedItemStack == null || !ItemStack.isSameItemSameComponents(this.lastRenderedItemStack, currentStack)) {
+            this.lastRenderedItemStack = currentStack.copy();
             resolver.updateForNonLiving(this.itemModel, currentStack, ItemDisplayContext.GROUND, this);
         }
     }
