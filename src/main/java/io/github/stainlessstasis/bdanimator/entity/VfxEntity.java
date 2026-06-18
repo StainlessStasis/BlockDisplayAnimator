@@ -122,6 +122,7 @@ public class VfxEntity extends Entity {
                 animation.inheritOverlayColor(),
                 animation.inheritOverlayIntensity(),
                 animation.inheritBlockState(),
+                animation.rotationPivot(),
                 animation.durationTicks(),
                 animation.loopCount(),
                 animation.onStart(),

@@ -90,9 +90,7 @@ public class AnimationTest {
 
         VfxAnimation anim1 = VfxAnimationBuilder.create()
                 .onStart(e -> player.sendSystemMessage(Component.literal("Anim 1")))
-                .blockState(Blocks.GILDED_BLACKSTONE.defaultBlockState(), b -> {})
-                .translation(0, 0, 0, t -> t
-                        .addKeyframe(1f, 2f, 0f, 2f, Easing.EASE_OUT_QUAD))
+                .blockState(Blocks.MAGMA_BLOCK.defaultBlockState(), b -> {})
                 .scale(1f, s -> s
                         .addKeyframe(1f, 1.5f, 0.4f, 1.5f, Easing.EASE_OUT_QUAD))
                 .overlay(1f, 0f, 0f, 0f, o -> o
@@ -101,11 +99,10 @@ public class AnimationTest {
 
         VfxAnimation anim2 = VfxAnimationBuilder.create()
                 .onStart(e -> player.sendSystemMessage(Component.literal("Anim 2")))
-                .inheritTranslation()
                 .inheritScale()
-                .blockState(Blocks.COPPER_BULB.defaultBlockState(), b -> {})
+                .blockState(Blocks.SHROOMLIGHT.defaultBlockState(), b -> {})
                 .translation(t -> t
-                        .addKeyframe(1f, 2f, 6f, 2f, Easing.EASE_OUT_EXPO))
+                        .addKeyframe(1f, 0f, 6f, 0f, Easing.EASE_OUT_EXPO))
                 .scale(s -> s
                         .addKeyframe(0.2f, 0.4f, 2.5f, 0.4f, Easing.EASE_OUT_ELASTIC)
                         .addKeyframe(1f, 1f, 1f, 1f, Easing.EASE_IN_QUAD))
@@ -119,12 +116,14 @@ public class AnimationTest {
         VfxAnimation anim3 = VfxAnimationBuilder.create()
                 .onStart(e -> player.sendSystemMessage(Component.literal("Anim 3")))
                 .inheritTranslation()
-                .inheritScale()
                 .inheritRotation()
                 .inheritBlockState()
+                .inheritScale()
                 .scale(s -> s
                         .addKeyframe(1f, 3f, Easing.EASE_OUT_EXPO))
-                .overlay(1f, 1f, 1f, 0.2f, o -> o
+                .inheritOverlayColor()
+                .inheritOverlayIntensity()
+                .overlay(o -> o
                         .addColorKeyframe(1f, new Vector3f(0f, 0f, 0f))
                         .addIntensityKeyframe(1f, 0f, Easing.EASE_IN_QUAD))
                 .build(25);

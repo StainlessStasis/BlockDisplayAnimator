@@ -15,6 +15,6 @@ public class VfxEntityRenderState extends EntityRenderState {
     public final Quaternionf rotation = new Quaternionf();
     public final Vector3f overlayColor = new Vector3f(1f);
     public final float[] overlayIntensity = new float[]{0f};
-    public final Vector3f pivotOffset = new Vector3f(-0.5f);
+    public Vector3f rotationPivot = new Vector3f(0.5f);
     public int brightnessOverride = -1;
 }

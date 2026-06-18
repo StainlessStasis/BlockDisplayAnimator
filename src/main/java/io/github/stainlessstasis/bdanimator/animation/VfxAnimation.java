@@ -23,6 +23,7 @@ public record VfxAnimation(
         boolean inheritOverlayColor,
         boolean inheritOverlayIntensity,
         boolean inheritBlockState,
+        Vector3f rotationPivot,
         int durationTicks,
         int loopCount,
         @Nullable Consumer<VfxEntity> onStart,

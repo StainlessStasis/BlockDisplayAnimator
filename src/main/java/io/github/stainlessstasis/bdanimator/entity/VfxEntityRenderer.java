@@ -42,6 +42,7 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         anim.overlayIntensityChannel().evaluate(t, state.overlayIntensity);
         state.blockState = anim.blockStateChannel().evaluate(t);
         state.brightnessOverride = entity.getBrightnessOverride();
+        state.rotationPivot = anim.rotationPivot();
 
         blockModelResolver.update(state.blockModel, state.blockState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
     }
@@ -58,7 +59,7 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
                 null
         );
         poseStack.mulPose(transformation);
-        poseStack.translate(state.pivotOffset.x, state.pivotOffset.y, state.pivotOffset.z);
+        poseStack.translate(-state.rotationPivot.x, -state.rotationPivot.y, -state.rotationPivot.z);
 
         int light = state.brightnessOverride != -1 ? state.brightnessOverride : state.lightCoords;
         state.blockModel.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);

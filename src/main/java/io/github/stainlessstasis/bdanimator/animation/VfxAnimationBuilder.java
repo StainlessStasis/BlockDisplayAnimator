@@ -72,6 +72,7 @@ public class VfxAnimationBuilder {
     private boolean inheritOverlayColor;
     private boolean inheritOverlayIntensity;
     private boolean inheritBlockState;
+    private Vector3f rotationPivot = new Vector3f(0.5f);
     private @Nullable Consumer<VfxEntity> onStart;
     private @Nullable Consumer<VfxEntity> onEnd;
     private @Nullable Consumer<VfxEntity> onLoop;
@@ -130,6 +131,19 @@ public class VfxAnimationBuilder {
     }
     public VfxAnimationBuilder inheritAll() {
         return inheritTranslation().inheritScale().inheritRotation().inheritOverlayColor().inheritOverlayIntensity().inheritBlockState();
+    }
+
+    public VfxAnimationBuilder rotationPivot(Vec3 pivot) {
+        this.rotationPivot = toVector3f(pivot);
+        return this;
+    }
+    public VfxAnimationBuilder rotationPivot(float x, float y, float z) {
+        this.rotationPivot = toVector3f(x, y, z);
+        return this;
+    }
+    public VfxAnimationBuilder rotationPivot(float uniformPosition) {
+        this.rotationPivot = new Vector3f(uniformPosition);
+        return this;
     }
 
     public VfxAnimationBuilder translation(Vector3f start, Consumer<Vector3fBuilder> builderConsumer) {
@@ -225,7 +239,7 @@ public class VfxAnimationBuilder {
         return new VfxAnimation(
                 translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel,
                 inheritTranslation, inheritScale, inheritRotation, inheritOverlayColor, inheritOverlayIntensity, inheritBlockState,
-                durationTicks, loopCount, onStart, onEnd, onLoop, keyframeCallbacks
+                rotationPivot, durationTicks, loopCount, onStart, onEnd, onLoop, keyframeCallbacks
         );
     }
 
