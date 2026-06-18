@@ -2,6 +2,7 @@ package io.github.stainlessstasis.bdanimator.channel;
 
 import net.minecraft.util.Mth;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class KeyframedChannel<S, T> implements Channel<T> {
@@ -29,6 +30,22 @@ public class KeyframedChannel<S, T> implements Channel<T> {
         float segmentT = Mth.inverseLerp(t, prev.time(), next.time());
         float easedT = next.easing().apply(segmentT);
         lerpFunc.lerp(prev.value(), next.value(), easedT, destination);
+    }
+
+    public KeyframedChannel<S, T> withStartValue(S startValue) {
+        List<Keyframe<S>> newKeyframes = new ArrayList<>(keyframes);
+        newKeyframes.set(0, new Keyframe<>(newKeyframes.getFirst().time(), startValue, newKeyframes.getFirst().easing()));
+
+        // fixes inheritance without additional keyframes causing it to move toward default values
+        if (newKeyframes.size() == 2) {
+            newKeyframes.set(1, new Keyframe<>(newKeyframes.get(1).time(), startValue, newKeyframes.get(1).easing()));
+        }
+
+        return new KeyframedChannel<>(newKeyframes, lerpFunc);
+    }
+
+    public S getLastKeyframeValue() {
+        return keyframes.getLast().value();
     }
 
     @FunctionalInterface

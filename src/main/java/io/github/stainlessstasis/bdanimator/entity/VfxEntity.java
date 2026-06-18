@@ -86,22 +86,55 @@ public class VfxEntity extends Entity {
     }
 
     private VfxSnapshot captureEndSnapshot(VfxAnimation animation) {
-        Vector3f translation = new Vector3f();
-        Vector3f scale = new Vector3f();
-        Quaternionf rotation = new Quaternionf();
-        Vector3f overlayColor = new Vector3f();
-        float[] intensity = new float[1];
-
-        animation.translationChannel().evaluate(1f, translation);
-        animation.scaleChannel().evaluate(1f, scale);
-        animation.rotationChannel().evaluate(1f, rotation);
-        animation.overlayColorChannel().evaluate(1f, overlayColor);
-        animation.overlayIntensityChannel().evaluate(1f, intensity);
-        BlockState blockState = animation.blockStateChannel().evaluate(1f);
-
-        return new VfxSnapshot(translation, scale, rotation, overlayColor, intensity[0], blockState);
+        return new VfxSnapshot(
+                animation.translationChannel().getLastKeyframeValue(),
+                animation.scaleChannel().getLastKeyframeValue(),
+                animation.rotationChannel().getLastKeyframeValue(),
+                animation.overlayColorChannel().getLastKeyframeValue(),
+                animation.overlayIntensityChannel().getLastKeyframeValue(),
+                animation.blockStateChannel().getLastKeyframeValue()
+        );
     }
 
+    private VfxAnimation applySnapshot(VfxAnimation animation) {
+        return new VfxAnimation(
+                animation.inheritTranslation()
+                        ? animation.translationChannel().withStartValue(lastSnapshot.translation())
+                        : animation.translationChannel(),
+                animation.inheritScale()
+                        ? animation.scaleChannel().withStartValue(lastSnapshot.scale())
+                        : animation.scaleChannel(),
+                animation.inheritRotation()
+                        ? animation.rotationChannel().withStartValue(lastSnapshot.rotation())
+                        : animation.rotationChannel(),
+                animation.inheritOverlayColor()
+                        ? animation.overlayColorChannel().withStartValue(lastSnapshot.overlayColor())
+                        : animation.overlayColorChannel(),
+                animation.inheritOverlayIntensity()
+                        ? animation.overlayIntensityChannel().withStartValue(lastSnapshot.overlayIntensity())
+                        : animation.overlayIntensityChannel(),
+                animation.inheritBlockState()
+                        ? animation.blockStateChannel().withStartValue(lastSnapshot.blockState())
+                        : animation.blockStateChannel(),
+                animation.inheritTranslation(),
+                animation.inheritScale(),
+                animation.inheritRotation(),
+                animation.inheritOverlayColor(),
+                animation.inheritOverlayIntensity(),
+                animation.inheritBlockState(),
+                animation.durationTicks(),
+                animation.loopCount(),
+                animation.onStart(),
+                animation.onEnd(),
+                animation.onLoop(),
+                animation.keyframeCallbacks()
+        );
+    }
+
+    private boolean hasAnyInheritance(VfxAnimation animation) {
+        return animation.inheritTranslation() || animation.inheritScale() || animation.inheritRotation()
+                || animation.inheritOverlayColor() || animation.inheritOverlayIntensity() || animation.inheritBlockState();
+    }
 
     @Override
     public void tick() {
@@ -137,12 +170,17 @@ public class VfxEntity extends Entity {
                     if (currentAnimation.onEnd() != null) {
                         currentAnimation.onEnd().accept(this);
                     }
+                    lastSnapshot = captureEndSnapshot(currentAnimation);
                     currentAnimation = null;
                     loopsCompleted = 0;
 
                     VfxAnimation next = animationQueue.poll();
                     if (next != null) {
-                        playAnimation(next);
+                        if (hasAnyInheritance(next)) {
+                            playAnimation(applySnapshot(next));
+                        } else {
+                            playAnimation(next);
+                        }
                     } else {
                         tickDespawn();
                     }
