@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -78,7 +77,7 @@ public class AnimationTest {
         }
     }
 
-    public static void runKeyframeTest() {
+    public static void runEverythingTest() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         ClientLevel level = Minecraft.getInstance().level;
