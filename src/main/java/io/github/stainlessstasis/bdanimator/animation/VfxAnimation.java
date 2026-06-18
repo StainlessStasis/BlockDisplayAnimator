@@ -23,6 +23,11 @@ public record VfxAnimation(
         boolean inheritOverlayColor,
         boolean inheritOverlayIntensity,
         boolean inheritBlockState,
+        @Nullable Vector3fTickModifier translationModifier,
+        @Nullable Vector3fTickModifier scaleModifier,
+        @Nullable QuaternionfTickModifier rotationModifier,
+        @Nullable Vector3fTickModifier overlayColorModifier,
+        @Nullable FloatTickModifier overlayIntensityModifier,
         Vector3f rotationPivot,
         int durationTicks,
         int loopCount,
@@ -30,4 +35,25 @@ public record VfxAnimation(
         @Nullable Consumer<VfxEntity> onEnd,
         @Nullable Consumer<VfxEntity> onLoop,
         Map<Float, Consumer<VfxEntity>> keyframeCallbacks
-) {}
+) {
+    @FunctionalInterface
+    public interface QuaternionfTickModifier {
+        void apply(Quaternionf value, AnimationContext context);
+    }
+
+    @FunctionalInterface
+    public interface Vector3fTickModifier {
+        void apply(Vector3f value, AnimationContext context);
+    }
+
+    @FunctionalInterface
+    public interface FloatTickModifier {
+        void apply(float[] value, AnimationContext context);
+    }
+
+    public record AnimationContext(VfxEntity entity, float animationTicks, float partialTick) {
+        public float getNormalizedAnimationProgress() {
+            return entity.getAnimationProgress(partialTick);
+        }
+    }
+}

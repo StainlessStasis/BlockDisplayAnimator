@@ -40,6 +40,29 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         anim.rotationChannel().evaluate(t, state.rotation);
         anim.overlayColorChannel().evaluate(t, state.overlayColor);
         anim.overlayIntensityChannel().evaluate(t, state.overlayIntensity);
+
+        var context = new VfxAnimation.AnimationContext(entity, entity.tickCount+partialTicks, partialTicks);
+        anim.translationChannel().evaluate(t, state.translation);
+        if (anim.translationModifier() != null) {
+            anim.translationModifier().apply(state.translation, context);
+        }
+        anim.scaleChannel().evaluate(t, state.scale);
+        if (anim.scaleModifier() != null) {
+            anim.scaleModifier().apply(state.scale, context);
+        }
+        anim.rotationChannel().evaluate(t, state.rotation);
+        if (anim.rotationModifier() != null) {
+            anim.rotationModifier().apply(state.rotation, context);
+        }
+        anim.overlayColorChannel().evaluate(t, state.overlayColor);
+        if (anim.overlayColorModifier() != null) {
+            anim.overlayColorModifier().apply(state.overlayColor, context);
+        }
+        anim.overlayIntensityChannel().evaluate(t, state.overlayIntensity);
+        if (anim.overlayIntensityModifier() != null) {
+            anim.overlayIntensityModifier().apply(state.overlayIntensity, context);
+        }
+
         state.blockState = anim.blockStateChannel().evaluate(t);
         state.brightnessOverride = entity.getBrightnessOverride();
         state.rotationPivot = anim.rotationPivot();

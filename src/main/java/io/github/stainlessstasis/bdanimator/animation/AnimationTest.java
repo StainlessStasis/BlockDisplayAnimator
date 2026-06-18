@@ -116,8 +116,17 @@ public class AnimationTest {
         VfxAnimation anim3 = VfxAnimationBuilder.create()
                 .onStart(e -> player.sendSystemMessage(Component.literal("Anim 3")))
                 .inheritTranslation()
-                .inheritRotation()
                 .inheritBlockState()
+                .inheritRotation()
+                .onTickRotation((rotation, context) -> {
+                    rotation.rotationXYZ(0, (float) Math.toRadians(context.animationTicks() * 30f), 0);
+                })
+                .onTickTranslation((translation, context) -> {
+                    translation.y += (float) (Math.sin(context.animationTicks() * 0.3f) * 4f);
+                })
+                .onTickScale((scale, context) -> {
+                    scale.mul(Math.max(1.5f, (float) (Math.sin(context.animationTicks() * 0.3f) * 4f)));
+                })
                 .inheritScale()
                 .scale(s -> s
                         .addKeyframe(1f, 3f, Easing.EASE_OUT_EXPO))
@@ -126,7 +135,7 @@ public class AnimationTest {
                 .overlay(o -> o
                         .addColorKeyframe(1f, new Vector3f(0f, 0f, 0f))
                         .addIntensityKeyframe(1f, 0f, Easing.EASE_IN_QUAD))
-                .build(25);
+                .build(200);
 
         entity.playOrQueueAnimation(anim1);
         entity.playOrQueueAnimation(anim2);

@@ -72,6 +72,11 @@ public class VfxAnimationBuilder {
     private boolean inheritOverlayColor;
     private boolean inheritOverlayIntensity;
     private boolean inheritBlockState;
+    private @Nullable VfxAnimation.Vector3fTickModifier translationModifier;
+    private @Nullable VfxAnimation.Vector3fTickModifier scaleModifier;
+    private @Nullable VfxAnimation.QuaternionfTickModifier rotationModifier;
+    private @Nullable VfxAnimation.Vector3fTickModifier overlayColorModifier;
+    private @Nullable VfxAnimation.FloatTickModifier overlayIntensityModifier;
     private Vector3f rotationPivot = new Vector3f(0.5f);
     private @Nullable Consumer<VfxEntity> onStart;
     private @Nullable Consumer<VfxEntity> onEnd;
@@ -131,6 +136,27 @@ public class VfxAnimationBuilder {
     }
     public VfxAnimationBuilder inheritAll() {
         return inheritTranslation().inheritScale().inheritRotation().inheritOverlayColor().inheritOverlayIntensity().inheritBlockState();
+    }
+
+    public VfxAnimationBuilder onTickTranslation(VfxAnimation.Vector3fTickModifier modifier) {
+        this.translationModifier = modifier;
+        return this;
+    }
+    public VfxAnimationBuilder onTickScale(VfxAnimation.Vector3fTickModifier modifier) {
+        this.scaleModifier = modifier;
+        return this;
+    }
+    public VfxAnimationBuilder onTickRotation(VfxAnimation.QuaternionfTickModifier modifier) {
+        this.rotationModifier = modifier;
+        return this;
+    }
+    public VfxAnimationBuilder onTickOverlayColor(VfxAnimation.Vector3fTickModifier modifier) {
+        this.overlayColorModifier = modifier;
+        return this;
+    }
+    public VfxAnimationBuilder onTickOverlayIntensity(VfxAnimation.FloatTickModifier modifier) {
+        this.overlayIntensityModifier = modifier;
+        return this;
     }
 
     public VfxAnimationBuilder rotationPivot(Vec3 pivot) {
@@ -239,6 +265,7 @@ public class VfxAnimationBuilder {
         return new VfxAnimation(
                 translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel,
                 inheritTranslation, inheritScale, inheritRotation, inheritOverlayColor, inheritOverlayIntensity, inheritBlockState,
+                translationModifier, scaleModifier, rotationModifier, overlayColorModifier, overlayIntensityModifier,
                 rotationPivot, durationTicks, loopCount, onStart, onEnd, onLoop, keyframeCallbacks
         );
     }
