@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.bdanimator;
 
-import io.github.stainlessstasis.bdanimator.registry.BDAnimatorEntities;
+import io.github.stainlessstasis.bdanimator.entity.BDAnimatorEntities;
 import net.neoforged.fml.common.EventBusSubscriber;
 import org.slf4j.Logger;
 

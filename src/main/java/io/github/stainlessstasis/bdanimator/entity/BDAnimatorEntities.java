@@ -1,7 +1,6 @@
-package io.github.stainlessstasis.bdanimator.registry;
+package io.github.stainlessstasis.bdanimator.entity;
 
 import io.github.stainlessstasis.bdanimator.BDAnimator;
-import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
