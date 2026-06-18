@@ -77,6 +77,60 @@ public class AnimationTest {
         }
     }
 
+    public static void runQueueTest() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+
+        VfxEntity entity = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
+        entity.setPos(pos);
+        level.addEntity(entity);
+
+        VfxAnimation anim1 = VfxAnimationBuilder.create()
+                .onStart(e -> player.sendSystemMessage(Component.literal("Anim 1")))
+                .blockState(Blocks.GILDED_BLACKSTONE.defaultBlockState(), b -> {})
+                .scale(1f, s -> s
+                        .addKeyframe(1f, 1.5f, 0.4f, 1.5f, Easing.EASE_OUT_QUAD))
+                .translation(0, 0, 0, t -> t
+                        .addKeyframe(1f, 0f, -0.5f, -0.5f, Easing.EASE_IN_CUBIC))
+                .overlay(new Vector3f(1f, 0f, 0f), 0f, o -> o
+                        .addIntensityKeyframe(1f, 0.7f, Easing.EASE_IN_QUAD))
+                .build(20);
+
+        VfxAnimation anim2 = VfxAnimationBuilder.create()
+                .onStart(e -> player.sendSystemMessage(Component.literal("Anim 2")))
+                .blockState(Blocks.COPPER_BULB.defaultBlockState(), b -> {})
+                .scale(1.5f, 0.4f, 1.5f, s -> s
+                        .addKeyframe(0.2f, 0.4f, 2.5f, 0.4f, Easing.EASE_OUT_ELASTIC)
+                        .addKeyframe(1f, 1f, 1f, 1f, Easing.EASE_IN_QUAD))
+                .translation(0f, -0.5f, -0.5f, t -> t
+                        .addKeyframe(1f, 0f, 6f, 0f, Easing.EASE_OUT_EXPO))
+                .rotation(0, 0, 0, r -> r
+                        .addKeyframe(1f, 0f, 720f, 0f, Easing.EASE_OUT_CUBIC))
+                .overlay(new Vector3f(1f, 0.6f, 0f), 0.7f, o -> o
+                        .addColorKeyframe(1f, new Vector3f(1f, 1f, 1f))
+                        .addIntensityKeyframe(1f, 0.2f, Easing.EASE_OUT_QUAD))
+                .build(30);
+
+        VfxAnimation anim3 = VfxAnimationBuilder.create()
+                .onStart(e -> player.sendSystemMessage(Component.literal("Anim 3")))
+                .blockState(Blocks.WHITE_STAINED_GLASS.defaultBlockState(), b -> {})
+                .translation(0f, 6f, 0f, t -> t
+                        .addKeyframe(1f, 0f, 6.5f, 0f, Easing.EASE_OUT_SINE))
+                .scale(1f, s -> s
+                        .addKeyframe(1f, 2.5f, Easing.EASE_OUT_EXPO))
+                .overlay(new Vector3f(1f, 1f, 1f), 0.2f, o -> o
+                        .addColorKeyframe(1f, new Vector3f(0f, 0f, 0f))
+                        .addIntensityKeyframe(1f, 0f, Easing.EASE_IN_QUAD))
+                .build(25);
+
+        entity.playOrQueueAnimation(anim1);
+        entity.playOrQueueAnimation(anim2);
+        entity.playOrQueueAnimation(anim3);
+    }
+
     public static void runEverythingTest() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;

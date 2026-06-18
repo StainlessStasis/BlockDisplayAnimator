@@ -12,10 +12,13 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.function.Consumer;
 
 @SuppressWarnings("NullableProblems")
 public class VfxEntity extends Entity {
+    private final Deque<VfxAnimation> animationQueue = new ArrayDeque<>();
     private @Nullable VfxAnimation currentAnimation;
     private long animationStartTick;
     private int animationDurationTicks;
@@ -38,6 +41,10 @@ public class VfxEntity extends Entity {
         return new VfxEntity(type, level);
     }
 
+    /**
+     * Immediately plays an animation, overriding whichever one is currently playing.
+     * See {@link #playOrQueueAnimation} for queueing animations.
+     */
     public void playAnimation(VfxAnimation animation) {
         this.currentAnimation = animation;
         this.animationStartTick = this.tickCount;
@@ -46,6 +53,18 @@ public class VfxEntity extends Entity {
         this.lastProgress = 0f;
         if (animation.onStart() != null) {
             animation.onStart().accept(this);
+        }
+    }
+
+    /**
+     * If no animation is currently playing, the animation will be played immediately.
+     * Otherwise, it will be added to the animation queue.
+     */
+    public void playOrQueueAnimation(VfxAnimation animation) {
+        if (currentAnimation == null) {
+            playAnimation(animation);
+        } else {
+            animationQueue.add(animation);
         }
     }
 
@@ -96,7 +115,13 @@ public class VfxEntity extends Entity {
                     }
                     currentAnimation = null;
                     loopsCompleted = 0;
-                    tickDespawn();
+
+                    VfxAnimation next = animationQueue.poll();
+                    if (next != null) {
+                        playAnimation(next);
+                    } else {
+                        tickDespawn();
+                    }
                 }
             }
         } else {
