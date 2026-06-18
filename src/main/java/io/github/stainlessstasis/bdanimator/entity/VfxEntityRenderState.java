@@ -11,11 +11,11 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class VfxEntityRenderState extends EntityRenderState {
-    public final boolean hasBlockState = false;
+    public boolean hasBlockState = false;
     public BlockModelRenderState blockModel = null;
     public BlockState blockState = Blocks.AIR.defaultBlockState();
 
-    public final boolean hasItemStack = false;
+    public boolean hasItemStack = false;
     ItemStackRenderState itemModel = null;
     public ItemStack itemStack = ItemStack.EMPTY;
 

@@ -3,6 +3,7 @@ package io.github.stainlessstasis.bdanimator.animation;
 import io.github.stainlessstasis.bdanimator.channel.DiscreteChannel;
 import io.github.stainlessstasis.bdanimator.channel.InterpolatedChannel;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -18,12 +19,14 @@ public record VfxAnimation(
         InterpolatedChannel<Vector3f, Vector3f> overlayColorChannel,
         InterpolatedChannel<Float, float[]> overlayIntensityChannel,
         DiscreteChannel<BlockState> blockStateChannel,
+        DiscreteChannel<ItemStack> itemStackChannel,
         boolean inheritTranslation,
         boolean inheritScale,
         boolean inheritRotation,
         boolean inheritOverlayColor,
         boolean inheritOverlayIntensity,
         boolean inheritBlockState,
+        boolean inheritItemStack,
         @Nullable Vector3fTickModifier translationModifier,
         @Nullable Vector3fTickModifier scaleModifier,
         @Nullable QuaternionfTickModifier rotationModifier,

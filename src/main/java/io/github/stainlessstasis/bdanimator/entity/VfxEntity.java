@@ -6,12 +6,16 @@ import io.github.stainlessstasis.bdanimator.animation.VfxSnapshot;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.entity.DisplayRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -30,6 +34,8 @@ public class VfxEntity extends Entity {
     private VfxSnapshot lastSnapshot = VfxSnapshot.DEFAULT;
     private BlockState lastBlockState = Blocks.AIR.defaultBlockState();
     private final BlockModelRenderState blockModel = new BlockModelRenderState();
+    private ItemStack lastItemStack = ItemStack.EMPTY;
+    private final ItemStackRenderState itemModel = new ItemStackRenderState();
 
     private final Deque<VfxAnimation> animationQueue = new ArrayDeque<>();
     private @Nullable VfxAnimation currentAnimation;
@@ -151,24 +157,35 @@ public class VfxEntity extends Entity {
                 animation.rotationChannel().getLastKeyframeValue(),
                 animation.overlayColorChannel().getLastKeyframeValue(),
                 animation.overlayIntensityChannel().getLastKeyframeValue(),
-                animation.blockStateChannel().getLastKeyframeValue()
+                animation.blockStateChannel().getLastKeyframeValue(),
+                animation.itemStackChannel().getLastKeyframeValue()
         );
     }
 
-    public void updateBakedModel(BlockState currentState, BlockModelResolver resolver) {
+    public void updateBlockModel(BlockState currentState, BlockModelResolver resolver) {
         if (this.lastBlockState != currentState) {
             this.lastBlockState = currentState;
             resolver.update(this.blockModel, currentState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
         }
     }
-
-    public BlockModelRenderState getCachedModel() {
+    public BlockModelRenderState getBlockModel() {
         return this.blockModel;
+    }
+
+    public void updateItemModel(ItemStack currentStack, ItemModelResolver resolver) {
+        if (this.lastItemStack == null || !ItemStack.isSameItemSameComponents(this.lastItemStack, currentStack)) {
+            this.lastItemStack = currentStack.copy();
+            resolver.updateForNonLiving(this.itemModel, currentStack, ItemDisplayContext.GROUND, this);
+        }
+    }
+
+    public ItemStackRenderState getItemModel() {
+        return this.itemModel;
     }
 
     private boolean hasAnyInheritance(VfxAnimation animation) {
         return animation.inheritTranslation() || animation.inheritScale() || animation.inheritRotation()
-                || animation.inheritOverlayColor() || animation.inheritOverlayIntensity() || animation.inheritBlockState();
+                || animation.inheritOverlayColor() || animation.inheritOverlayIntensity() || animation.inheritBlockState() || animation.inheritItemStack();
     }
 
     @Override

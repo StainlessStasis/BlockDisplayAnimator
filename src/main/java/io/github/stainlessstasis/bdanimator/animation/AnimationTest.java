@@ -11,6 +11,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -90,6 +92,8 @@ public class AnimationTest {
 
         VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
         entity.setAffectedByCulling(false);
+        Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
+        entity.setPos(pos);
         level.addEntity(entity);
 
         VfxAnimation anim1 = VfxAnimationBuilder.create()
@@ -152,6 +156,57 @@ public class AnimationTest {
         entity.playOrQueueAnimation(anim2);
         entity.playOrQueueAnimation(anim3);
     }
+
+    public static void runItemEncasementTest() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+
+        Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
+
+        VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        entity.setPos(pos);
+        entity.setAffectedByCulling(false);
+        level.addEntity(entity);
+
+        VfxAnimation stage1 = VfxAnimationBuilder.create()
+                .onStart(e -> player.sendSystemMessage(Component.literal("Stage 1: item only")))
+                .itemStack(new ItemStack(Items.DIAMOND), i -> {})
+                .scale(5f, s -> {})
+                .rotation(0, 0, 0, r -> r
+                        .addKeyframe(1f, 0, 360, 0, Easings.LINEAR))
+                .onTickTranslation((translation, context) ->
+                        translation.y += (float) (Math.sin(context.interpolatedTicks() * 0.15f) * 0.15f))
+                .build(60);
+
+        VfxAnimation stage2 = VfxAnimationBuilder.create()
+                .onStart(e -> player.sendSystemMessage(Component.literal("Stage 2: encasing in glass")))
+                .inheritItemStack()
+                .inheritScale()
+                .rotation(0, 0, 0, r -> r
+                        .addKeyframe(1f, 0, 360, 0, Easings.LINEAR))
+                .blockState(Blocks.CYAN_STAINED_GLASS.defaultBlockState(), b -> {})
+                .onTickTranslation((translation, context) ->
+                        translation.y += (float) (Math.sin(context.interpolatedTicks() * 0.15f) * 0.15f))
+                .build(60);
+
+        VfxAnimation stage3 = VfxAnimationBuilder.create()
+                .onStart(e -> player.sendSystemMessage(Component.literal("Stage 3: item removed, glass remains")))
+                .loopInfinite()
+                .inheritScale()
+                .inheritBlockState()
+                .rotation(0, 0, 0, r -> r
+                        .addKeyframe(1f, 0, 360, 0, Easings.LINEAR))
+                .onTickTranslation((translation, context) ->
+                        translation.y += (float) (Math.sin(context.interpolatedTicks() * 0.15f) * 0.15f))
+                .build(60);
+
+        entity.playOrQueueAnimation(stage1);
+        entity.playOrQueueAnimation(stage2);
+        entity.playOrQueueAnimation(stage3);
+    }
+
 
     public static void runEverythingTest() {
         LocalPlayer player = Minecraft.getInstance().player;

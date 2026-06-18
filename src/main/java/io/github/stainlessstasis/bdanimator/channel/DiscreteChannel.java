@@ -15,6 +15,7 @@ public class DiscreteChannel<T> implements Channel<T> {
         return keyframes.getLast().value();
     }
 
+    @Override
     public T evaluate(float t, @Nullable T fallbackStartValue) {
         T result = (fallbackStartValue != null) ? fallbackStartValue : keyframes.getFirst().value();
         for (int i = 1; i < keyframes.size(); i++) {

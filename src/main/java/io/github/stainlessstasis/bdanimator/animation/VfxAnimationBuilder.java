@@ -7,6 +7,7 @@ import io.github.stainlessstasis.bdanimator.channel.InterpolatedChannel;
 import io.github.stainlessstasis.bdanimator.easing.Easing;
 import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -45,7 +46,10 @@ public class VfxAnimationBuilder {
             Interpolators::lerpFloat
     );
     public static final DiscreteChannel<BlockState> DEFAULT_BLOCK_STATE = new DiscreteChannel<>(
-            List.of(new Keyframe<>(0f, Blocks.WHITE_CONCRETE.defaultBlockState(), Easings.STATIC_LINEAR))
+            List.of(new Keyframe<>(0f, Blocks.AIR.defaultBlockState(), Easings.STATIC_LINEAR))
+    );
+    public static final DiscreteChannel<ItemStack> DEFAULT_ITEM_STACK = new DiscreteChannel<>(
+            List.of(new Keyframe<>(0f, ItemStack.EMPTY, Easings.STATIC_LINEAR))
     );
 
     public static VfxAnimationBuilder create() {
@@ -65,12 +69,14 @@ public class VfxAnimationBuilder {
     private InterpolatedChannel<Vector3f, Vector3f> overlayColorChannel;
     private InterpolatedChannel<Float, float[]> overlayIntensityChannel;
     private DiscreteChannel<BlockState> blockStateChannel;
+    private DiscreteChannel<ItemStack> itemStackChannel;
     private boolean inheritTranslation;
     private boolean inheritScale;
     private boolean inheritRotation;
     private boolean inheritOverlayColor;
     private boolean inheritOverlayIntensity;
     private boolean inheritBlockState;
+    private boolean inheritItemStack;
     private @Nullable VfxAnimation.Vector3fTickModifier translationModifier;
     private @Nullable VfxAnimation.Vector3fTickModifier scaleModifier;
     private @Nullable VfxAnimation.QuaternionfTickModifier rotationModifier;
@@ -132,8 +138,12 @@ public class VfxAnimationBuilder {
         this.inheritBlockState = true;
         return this;
     }
+    public VfxAnimationBuilder inheritItemStack() {
+        this.inheritItemStack = true;
+        return this;
+    }
     public VfxAnimationBuilder inheritAll() {
-        return inheritTranslation().inheritScale().inheritRotation().inheritOverlayColor().inheritOverlayIntensity().inheritBlockState();
+        return inheritTranslation().inheritScale().inheritRotation().inheritOverlayColor().inheritOverlayIntensity().inheritBlockState().inheritItemStack();
     }
 
     public VfxAnimationBuilder onTickTranslation(VfxAnimation.Vector3fTickModifier modifier) {
@@ -253,6 +263,13 @@ public class VfxAnimationBuilder {
         return this;
     }
 
+    public VfxAnimationBuilder itemStack(ItemStack initial, Consumer<ItemStackBuilder> builderConsumer) {
+        ItemStackBuilder builder = new ItemStackBuilder(initial);
+        builderConsumer.accept(builder);
+        builder.end();
+        return this;
+    }
+
     public VfxAnimation build(int durationTicks) {
         if (translationChannel == null) translationChannel = DEFAULT_TRANSLATION;
         if (scaleChannel == null) scaleChannel = DEFAULT_SCALE;
@@ -260,13 +277,14 @@ public class VfxAnimationBuilder {
         if (overlayColorChannel == null) overlayColorChannel = DEFAULT_OVERLAY_COLOR;
         if (overlayIntensityChannel == null) overlayIntensityChannel = DEFAULT_OVERLAY_INTENSITY;
         if (blockStateChannel == null) blockStateChannel = DEFAULT_BLOCK_STATE;
+        if (itemStackChannel == null) itemStackChannel = DEFAULT_ITEM_STACK;
         List<KeyframeCallbackEntry> sortedKeyframeCallbacks = keyframeCallbacks.entrySet().stream()
                 .map(entry -> new KeyframeCallbackEntry(entry.getKey(), entry.getValue()))
                 .sorted(Comparator.comparingDouble(KeyframeCallbackEntry::time))
                 .toList();
         return new VfxAnimation(
-                translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel,
-                inheritTranslation, inheritScale, inheritRotation, inheritOverlayColor, inheritOverlayIntensity, inheritBlockState,
+                translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel, itemStackChannel,
+                inheritTranslation, inheritScale, inheritRotation, inheritOverlayColor, inheritOverlayIntensity, inheritBlockState, inheritItemStack,
                 translationModifier, scaleModifier, rotationModifier, overlayColorModifier, overlayIntensityModifier,
                 rotationPivot, durationTicks, loopCount, onStart, onEnd, onLoop, sortedKeyframeCallbacks
         );
@@ -389,26 +407,54 @@ public class VfxAnimationBuilder {
         }
     }
 
-    public class BlockStateBuilder {
-        private final List<Keyframe<BlockState>> keyframes = new ArrayList<>();
+    private abstract static class DiscreteBuilder<T, B extends DiscreteBuilder<T, B>> {
+        protected final List<Keyframe<T>> keyframes = new ArrayList<>();
 
-        private BlockStateBuilder(BlockState initial) {
+        private DiscreteBuilder(T initial) {
             keyframes.add(new Keyframe<>(0f, initial, Easings.LINEAR.get()));
         }
 
-        public BlockStateBuilder addKeyframe(float time, BlockState state) {
+        @SuppressWarnings("unchecked")
+        protected B self() {
+            return (B) this;
+        }
+
+        public B addKeyframe(float time, T state) {
             keyframes.add(new Keyframe<>(time, state, Easings.LINEAR.get()));
-            return this;
+            return self();
         }
 
-        public BlockStateBuilder holdKeyframe(float time) {
+        public B holdKeyframe(float time) {
             keyframes.add(new Keyframe<>(time, keyframes.getLast().value(), keyframes.getLast().easing()));
-            return this;
+            return self();
         }
 
-        private void end() {
+        void end() {
             keyframes.add(new Keyframe<>(1f, keyframes.getLast().value(), Easings.LINEAR.get()));
+        }
+    }
+
+    public class BlockStateBuilder extends DiscreteBuilder<BlockState, BlockStateBuilder> {
+        private BlockStateBuilder(BlockState initial) {
+            super(initial);
+        }
+
+        @Override
+        void end() {
+            super.end();
             blockStateChannel = new DiscreteChannel<>(keyframes);
+        }
+    }
+
+    public class ItemStackBuilder extends DiscreteBuilder<ItemStack, ItemStackBuilder> {
+        private ItemStackBuilder(ItemStack initial) {
+            super(initial);
+        }
+
+        @Override
+        void end() {
+            super.end();
+            itemStackChannel = new DiscreteChannel<>(keyframes);
         }
     }
 }

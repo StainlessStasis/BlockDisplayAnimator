@@ -1,14 +1,14 @@
 package io.github.stainlessstasis.bdanimator.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Transformation;
+import com.mojang.math.Axis;
 import io.github.stainlessstasis.bdanimator.animation.VfxAnimation;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelResolver;
-import net.minecraft.client.renderer.entity.DisplayRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -23,10 +23,12 @@ import org.jspecify.annotations.NonNull;
 public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRenderState> {
     public static final float PI_180 = (float) (Math.PI/180f);
     protected final BlockModelResolver blockModelResolver;
+    protected final ItemModelResolver itemModelResolver;
 
     public VfxEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.blockModelResolver = context.getBlockModelResolver();
+        this.itemModelResolver = context.getItemModelResolver();
     }
 
     @Override
@@ -66,9 +68,27 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
             anim.overlayIntensityModifier().apply(state.overlayIntensity, context);
         }
 
-        state.blockState = anim.blockStateChannel().evaluate(t, anim.inheritBlockState() ? snapshot.blockState() : null);
-        entity.updateBakedModel(state.blockState, this.blockModelResolver);
-        state.blockModel = entity.getCachedModel();
+        var blockChannel = anim.blockStateChannel();
+        if (blockChannel != null) {
+            state.hasBlockState = true;
+            state.blockState = blockChannel.evaluate(t, anim.inheritBlockState() ? snapshot.blockState() : null);
+            entity.updateBlockModel(state.blockState, this.blockModelResolver);
+            state.blockModel = entity.getBlockModel();
+        } else {
+            state.hasBlockState = false;
+            state.blockModel = null;
+        }
+
+        var itemChannel = anim.itemStackChannel();
+        if (itemChannel != null) {
+            state.hasItemStack = true;
+            state.itemStack = itemChannel.evaluate(t, anim.inheritItemStack() ? snapshot.itemStack() : null);
+            entity.updateItemModel(state.itemStack, this.itemModelResolver);
+            state.itemModel = entity.getItemModel();
+        } else {
+            state.hasItemStack = false;
+            state.itemModel = null;
+        }
 
         state.brightnessOverride = entity.getBrightnessOverride();
         state.rotationPivot = anim.rotationPivot();
@@ -97,8 +117,17 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         poseStack.translate(-state.rotationPivot.x, -state.rotationPivot.y, -state.rotationPivot.z);
 
         int light = state.brightnessOverride != -1 ? state.brightnessOverride : state.lightCoords;
-        if (state.blockModel != null) {
+
+        if (state.hasBlockState && state.blockModel != null) {
             state.blockModel.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+        }
+
+        if (state.hasItemStack && state.itemModel != null && !state.itemModel.isEmpty()) {
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            poseStack.mulPose(Axis.YP.rotation((float) Math.PI));
+            state.itemModel.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+            poseStack.popPose();
         }
 
         applyOverlayColor(state, poseStack, collector);
