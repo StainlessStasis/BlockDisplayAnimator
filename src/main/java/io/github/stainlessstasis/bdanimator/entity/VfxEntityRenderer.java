@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
@@ -149,6 +150,16 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
                 buffer.addVertex(mat, x2, y2, z2).setColor(r, g, b, a);
             });
         });
+    }
+
+    @Override
+    protected boolean affectedByCulling(@NonNull VfxEntity entity) {
+        return entity.isAffectedByCulling();
+    }
+
+    @Override
+    protected @NonNull AABB getBoundingBoxForCulling(@NonNull VfxEntity entity) {
+        return entity.getBoundingBox().inflate(entity.getCullingRadius());
     }
 
     @Override

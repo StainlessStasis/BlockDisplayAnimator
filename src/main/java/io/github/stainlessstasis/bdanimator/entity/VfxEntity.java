@@ -9,13 +9,9 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -37,6 +33,9 @@ public class VfxEntity extends Entity {
     private int despawnTimer = 0;
     private boolean isPersistInfinite = false;
     private int loopsCompleted = 0;
+
+    private float cullingRadius = 32f;
+    private boolean isAffectedByCulling = true;
 
     public VfxEntity(EntityType<? extends Entity> type, Level level) {
         super(type, level);
@@ -251,6 +250,11 @@ public class VfxEntity extends Entity {
     public void setTicksToPersist(int ticks) { this.ticksToPersist = ticks; }
     public boolean isPersistInfinite() { return this.isPersistInfinite; }
     public void setInfinitePersist(boolean value) { this.isPersistInfinite = value; }
+
+    public float getCullingRadius() { return cullingRadius; }
+    public void setCullingRadius(float radius) { this.cullingRadius = radius; }
+    public boolean isAffectedByCulling() { return isAffectedByCulling; }
+    public void setAffectedByCulling(boolean affectedByCulling) { this.isAffectedByCulling = affectedByCulling; }
 
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {}
     @Override public boolean hurtServer(ServerLevel level, DamageSource source, float v) { return false; }
