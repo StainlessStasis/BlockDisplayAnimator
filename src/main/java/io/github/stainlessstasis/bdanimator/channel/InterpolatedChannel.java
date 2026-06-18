@@ -3,14 +3,13 @@ package io.github.stainlessstasis.bdanimator.channel;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class KeyframedChannel<S, T> implements Channel<T> {
+public class InterpolatedChannel<S, T> implements Channel<T> {
     private final List<Keyframe<S>> keyframes;
     private final LerpFunction<S, T> lerpFunc;
 
-    public KeyframedChannel(List<Keyframe<S>> keyframes, LerpFunction<S, T> lerpFunc) {
+    public InterpolatedChannel(List<Keyframe<S>> keyframes, LerpFunction<S, T> lerpFunc) {
         this.keyframes = List.copyOf(keyframes);
         this.lerpFunc = lerpFunc;
     }

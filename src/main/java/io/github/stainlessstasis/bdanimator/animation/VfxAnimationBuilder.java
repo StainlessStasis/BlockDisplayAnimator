@@ -1,9 +1,9 @@
 package io.github.stainlessstasis.bdanimator.animation;
 
-import io.github.stainlessstasis.bdanimator.channel.BlockStateChannel;
+import io.github.stainlessstasis.bdanimator.channel.DiscreteChannel;
 import io.github.stainlessstasis.bdanimator.channel.Interpolators;
 import io.github.stainlessstasis.bdanimator.channel.Keyframe;
-import io.github.stainlessstasis.bdanimator.channel.KeyframedChannel;
+import io.github.stainlessstasis.bdanimator.channel.InterpolatedChannel;
 import io.github.stainlessstasis.bdanimator.easing.Easing;
 import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
@@ -19,32 +19,32 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class VfxAnimationBuilder {
-    public static final KeyframedChannel<Vector3f, Vector3f> DEFAULT_TRANSLATION = new KeyframedChannel<>(
+    public static final InterpolatedChannel<Vector3f, Vector3f> DEFAULT_TRANSLATION = new InterpolatedChannel<>(
             List.of(new Keyframe<>(0f, new Vector3f(0f), Easings.STATIC_LINEAR),
                     new Keyframe<>(1f, new Vector3f(0f), Easings.STATIC_LINEAR)),
             Interpolators::lerpVector3f
     );
-    public static final KeyframedChannel<Vector3f, Vector3f> DEFAULT_SCALE = new KeyframedChannel<>(
+    public static final InterpolatedChannel<Vector3f, Vector3f> DEFAULT_SCALE = new InterpolatedChannel<>(
             List.of(new Keyframe<>(0f, new Vector3f(1f), Easings.STATIC_LINEAR),
                     new Keyframe<>(1f, new Vector3f(1f), Easings.STATIC_LINEAR)),
             Interpolators::lerpVector3f
     );
-    public static final KeyframedChannel<Vector3f, Quaternionf> DEFAULT_ROTATION = new KeyframedChannel<>(
+    public static final InterpolatedChannel<Vector3f, Quaternionf> DEFAULT_ROTATION = new InterpolatedChannel<>(
             List.of(new Keyframe<>(0f, new Vector3f(0f), Easings.STATIC_LINEAR),
                     new Keyframe<>(1f, new Vector3f(0f), Easings.STATIC_LINEAR)),
             Interpolators::lerpDegrees
     );
-    public static final KeyframedChannel<Vector3f, Vector3f> DEFAULT_OVERLAY_COLOR = new KeyframedChannel<>(
+    public static final InterpolatedChannel<Vector3f, Vector3f> DEFAULT_OVERLAY_COLOR = new InterpolatedChannel<>(
             List.of(new Keyframe<>(0f, new Vector3f(1f), Easings.STATIC_LINEAR),
                     new Keyframe<>(1f, new Vector3f(1f), Easings.STATIC_LINEAR)),
             Interpolators::lerpVector3f
     );
-    public static final KeyframedChannel<Float, float[]> DEFAULT_OVERLAY_INTENSITY = new KeyframedChannel<>(
+    public static final InterpolatedChannel<Float, float[]> DEFAULT_OVERLAY_INTENSITY = new InterpolatedChannel<>(
             List.of(new Keyframe<>(0f, 0f, Easings.STATIC_LINEAR),
                     new Keyframe<>(1f, 0f, Easings.STATIC_LINEAR)),
             Interpolators::lerpFloat
     );
-    public static final BlockStateChannel DEFAULT_BLOCK_STATE = new BlockStateChannel(
+    public static final DiscreteChannel<BlockState> DEFAULT_BLOCK_STATE = new DiscreteChannel<>(
             List.of(new Keyframe<>(0f, Blocks.WHITE_CONCRETE.defaultBlockState(), Easings.STATIC_LINEAR))
     );
 
@@ -59,12 +59,12 @@ public class VfxAnimationBuilder {
         return new Vector3f(x, y, z);
     }
 
-    private KeyframedChannel<Vector3f, Vector3f> translationChannel;
-    private KeyframedChannel<Vector3f, Vector3f> scaleChannel;
-    private KeyframedChannel<Vector3f, Quaternionf> rotationChannel;
-    private KeyframedChannel<Vector3f, Vector3f> overlayColorChannel;
-    private KeyframedChannel<Float, float[]> overlayIntensityChannel;
-    private BlockStateChannel blockStateChannel;
+    private InterpolatedChannel<Vector3f, Vector3f> translationChannel;
+    private InterpolatedChannel<Vector3f, Vector3f> scaleChannel;
+    private InterpolatedChannel<Vector3f, Quaternionf> rotationChannel;
+    private InterpolatedChannel<Vector3f, Vector3f> overlayColorChannel;
+    private InterpolatedChannel<Float, float[]> overlayIntensityChannel;
+    private DiscreteChannel<BlockState> blockStateChannel;
     private boolean inheritTranslation;
     private boolean inheritScale;
     private boolean inheritRotation;
@@ -171,7 +171,7 @@ public class VfxAnimationBuilder {
     }
 
     public VfxAnimationBuilder translation(Vector3f start, Consumer<Vector3fBuilder> builderConsumer) {
-        Vector3fBuilder builder = new Vector3fBuilder(start, kfs -> translationChannel = new KeyframedChannel<>(kfs, Interpolators::lerpVector3f));
+        Vector3fBuilder builder = new Vector3fBuilder(start, kfs -> translationChannel = new InterpolatedChannel<>(kfs, Interpolators::lerpVector3f));
         builderConsumer.accept(builder);
         builder.end();
         return this;
@@ -190,7 +190,7 @@ public class VfxAnimationBuilder {
     }
 
     public VfxAnimationBuilder scale(Vector3f start, Consumer<Vector3fBuilder> builderConsumer) {
-        Vector3fBuilder builder = new Vector3fBuilder(start, kfs -> scaleChannel = new KeyframedChannel<>(kfs, Interpolators::lerpVector3f));
+        Vector3fBuilder builder = new Vector3fBuilder(start, kfs -> scaleChannel = new InterpolatedChannel<>(kfs, Interpolators::lerpVector3f));
         builderConsumer.accept(builder);
         builder.end();
         return this;
@@ -209,7 +209,7 @@ public class VfxAnimationBuilder {
     }
 
     public VfxAnimationBuilder rotation(Vector3f startDegrees, Consumer<Vector3fBuilder> builderConsumer) {
-        Vector3fBuilder builder = new Vector3fBuilder(startDegrees, kfs -> rotationChannel = new KeyframedChannel<>(kfs, Interpolators::lerpDegrees));
+        Vector3fBuilder builder = new Vector3fBuilder(startDegrees, kfs -> rotationChannel = new InterpolatedChannel<>(kfs, Interpolators::lerpDegrees));
         builderConsumer.accept(builder);
         builder.end();
         return this;
@@ -384,8 +384,8 @@ public class VfxAnimationBuilder {
         private void end() {
             colorKeyframes.add(new Keyframe<>(1f, colorKeyframes.getLast().value(), Easings.LINEAR.get()));
             intensityKeyframes.add(new Keyframe<>(1f, intensityKeyframes.getLast().value(), Easings.LINEAR.get()));
-            overlayColorChannel = new KeyframedChannel<>(colorKeyframes, Interpolators::lerpVector3f);
-            overlayIntensityChannel = new KeyframedChannel<>(intensityKeyframes, Interpolators::lerpFloat);
+            overlayColorChannel = new InterpolatedChannel<>(colorKeyframes, Interpolators::lerpVector3f);
+            overlayIntensityChannel = new InterpolatedChannel<>(intensityKeyframes, Interpolators::lerpFloat);
         }
     }
 
@@ -408,7 +408,7 @@ public class VfxAnimationBuilder {
 
         private void end() {
             keyframes.add(new Keyframe<>(1f, keyframes.getLast().value(), Easings.LINEAR.get()));
-            blockStateChannel = new BlockStateChannel(keyframes);
+            blockStateChannel = new DiscreteChannel<>(keyframes);
         }
     }
 }

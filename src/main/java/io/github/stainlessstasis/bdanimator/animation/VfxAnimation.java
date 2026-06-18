@@ -1,8 +1,9 @@
 package io.github.stainlessstasis.bdanimator.animation;
 
-import io.github.stainlessstasis.bdanimator.channel.BlockStateChannel;
-import io.github.stainlessstasis.bdanimator.channel.KeyframedChannel;
+import io.github.stainlessstasis.bdanimator.channel.DiscreteChannel;
+import io.github.stainlessstasis.bdanimator.channel.InterpolatedChannel;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -11,12 +12,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public record VfxAnimation(
-        KeyframedChannel<Vector3f, Vector3f> translationChannel,
-        KeyframedChannel<Vector3f, Vector3f> scaleChannel,
-        KeyframedChannel<Vector3f, Quaternionf> rotationChannel,
-        KeyframedChannel<Vector3f, Vector3f> overlayColorChannel,
-        KeyframedChannel<Float, float[]> overlayIntensityChannel,
-        BlockStateChannel blockStateChannel,
+        InterpolatedChannel<Vector3f, Vector3f> translationChannel,
+        InterpolatedChannel<Vector3f, Vector3f> scaleChannel,
+        InterpolatedChannel<Vector3f, Quaternionf> rotationChannel,
+        InterpolatedChannel<Vector3f, Vector3f> overlayColorChannel,
+        InterpolatedChannel<Float, float[]> overlayIntensityChannel,
+        DiscreteChannel<BlockState> blockStateChannel,
         boolean inheritTranslation,
         boolean inheritScale,
         boolean inheritRotation,
