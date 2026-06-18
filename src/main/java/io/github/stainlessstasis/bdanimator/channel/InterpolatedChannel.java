@@ -15,11 +15,11 @@ public class InterpolatedChannel<S, T> implements Channel<T> {
     }
 
     @Override
-    public void evaluate(float t, T destination) {
-        evaluate(t, destination, null);
+    public T evaluate(float t, T destination) {
+        return evaluate(t, destination, null);
     }
 
-    public void evaluate(float t, T destination, @Nullable S fallbackStartValue) {
+    public T evaluate(float t, T destination, @Nullable S fallbackStartValue) {
         Keyframe<S> prev = keyframes.getFirst();
         Keyframe<S> next = keyframes.getLast();
 
@@ -38,6 +38,7 @@ public class InterpolatedChannel<S, T> implements Channel<T> {
         S endVal = (next == keyframes.get(1) && keyframes.size() == 2 && fallbackStartValue != null) ? fallbackStartValue : next.value();
 
         lerpFunc.lerp(startVal, endVal, easedT, destination);
+        return destination;
     }
 
     public S getLastKeyframeValue() {

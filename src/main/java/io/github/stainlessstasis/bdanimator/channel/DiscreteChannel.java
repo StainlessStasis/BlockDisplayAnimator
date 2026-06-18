@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class DiscreteChannel<T> {
+public class DiscreteChannel<T> implements Channel<T> {
     private final List<Keyframe<T>> keyframes;
 
     public DiscreteChannel(List<Keyframe<T>> keyframes) {
