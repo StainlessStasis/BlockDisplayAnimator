@@ -17,7 +17,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -47,15 +49,33 @@ public class VfxEntity extends Entity {
     private float cullingRadius = 32f;
     private boolean isAffectedByCulling = true;
 
+    private @Nullable Entity boundEntity;
+    private Vector3f bindOffset = new Vector3f();
+    private boolean bindLocalSpace = false;
+
     private BillboardMode billboardMode = BillboardMode.FIXED;
 
-    public VfxEntity(EntityType<? extends Entity> type, Level level) {
+    protected VfxEntity(EntityType<? extends Entity> type, Level level) {
         super(type, level);
         this.noPhysics = true;
     }
 
-    public static VfxEntity createDefault(EntityType<? extends Entity> type, Level level) {
+    public static VfxEntity create(EntityType<? extends Entity> type, Level level) {
         return new VfxEntity(type, level);
+    }
+
+    public static VfxEntity createBoundTo(EntityType<? extends Entity> type, Level level, Entity target) {
+        VfxEntity entity = new VfxEntity(type, level);
+        entity.bindTo(target);
+        entity.setPos(target.position());
+        return entity;
+    }
+
+    public static VfxEntity createBoundTo(EntityType<? extends Entity> type, Level level, Entity target, Vector3f offset, boolean localSpace) {
+        VfxEntity entity = new VfxEntity(type, level);
+        entity.bindTo(target, offset, localSpace);
+        entity.setPos(target.position());
+        return entity;
     }
 
     /**
@@ -154,6 +174,7 @@ public class VfxEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
+        updateBoundPosition();
 
         if (onTick != null) {
             onTick.accept(this);
@@ -218,6 +239,45 @@ public class VfxEntity extends Entity {
             discard();
         }
         despawnTimer++;
+    }
+
+    public void bindTo(Entity entity) {
+        bindTo(entity, new Vector3f(), false);
+    }
+
+    public void bindTo(Entity entity, Vector3f offset) {
+        bindTo(entity, offset, false);
+    }
+
+    public void bindTo(Entity entity, Vector3f offset, boolean localSpace) {
+        this.boundEntity = entity;
+        this.bindOffset = offset;
+        this.bindLocalSpace = localSpace;
+    }
+
+    public void unbind() {
+        this.boundEntity = null;
+    }
+
+    public @Nullable Entity getBoundEntity() {
+        return boundEntity;
+    }
+
+    private void updateBoundPosition() {
+        if (boundEntity == null || !boundEntity.isAlive()) {
+            if (boundEntity != null) boundEntity = null;
+            return;
+        }
+
+        Vec3 pos = boundEntity.position();
+        if (bindLocalSpace) {
+            Vec3 rotatedOffset = new Vec3(bindOffset.x, bindOffset.y, bindOffset.z)
+                    .xRot((float) Math.toRadians(-boundEntity.getXRot()))
+                    .yRot((float) Math.toRadians(-boundEntity.getYRot()));
+            setPos(pos.add(rotatedOffset));
+        } else {
+            setPos(pos.x + bindOffset.x, pos.y + bindOffset.y, pos.z + bindOffset.z);
+        }
     }
 
     @Override

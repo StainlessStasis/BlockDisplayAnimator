@@ -18,7 +18,7 @@ public class BDAnimatorEntities {
     public static final Supplier<EntityType<@NotNull VfxEntity>> VFX_ENTITY = ENTITY_TYPES.register(
             "vfx_entity",
             () -> EntityType.Builder.of(
-                            VfxEntity::createDefault,
+                            VfxEntity::create,
                             MobCategory.MISC
                     )
                     .noSave()

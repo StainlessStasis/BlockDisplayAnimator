@@ -55,7 +55,7 @@ public class AnimationTest {
             float fireTransition = 0.25f + (float)(Math.random() * 0.15f);
             float smokeTransition = 0.5f + (float)(Math.random() * 0.2f);
 
-            VfxEntity entity = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
+            VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
             entity.setPos(center);
             level.addEntity(entity);
 
@@ -88,9 +88,7 @@ public class AnimationTest {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        VfxEntity entity = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
-        Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
-        entity.setPos(pos);
+        VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
         entity.setAffectedByCulling(false);
         level.addEntity(entity);
 
@@ -123,6 +121,13 @@ public class AnimationTest {
                 .onStart(e -> player.sendSystemMessage(Component.literal("Anim 3")))
                 .inheritTranslation()
                 .inheritBlockState()
+                .blockState(Blocks.LECTERN.defaultBlockState(), b -> b
+                        .addKeyframe(0.25f, Blocks.BELL.defaultBlockState())
+                        .addKeyframe(0.35f, Blocks.MANGROVE_PRESSURE_PLATE.defaultBlockState())
+                        .addKeyframe(0.5f, Blocks.DARK_OAK_SAPLING.defaultBlockState())
+                        .addKeyframe(0.6f, Blocks.QUARTZ_STAIRS.defaultBlockState())
+                        .addKeyframe(0.8f, Blocks.BAMBOO.defaultBlockState())
+                        .addKeyframe(0.95f, Blocks.SMALL_AMETHYST_BUD.defaultBlockState()))
                 .inheritRotation()
                 .onTickRotation((rotation, context) -> {
                     rotation.rotationXYZ(0, (float) Math.toRadians(context.interpolatedTicks() * 30f), 0);
@@ -154,7 +159,7 @@ public class AnimationTest {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        VfxEntity entity = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
         entity.setPos(pos);
         level.addEntity(entity);
@@ -195,13 +200,13 @@ public class AnimationTest {
         entity.playAnimation(anim);
     }
 
-    public static void runCoolEasingss() {
+    public static void runCoolEasings() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        VfxEntity entity = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(6f));
         entity.setPos(pos);
         level.addEntity(entity);
@@ -247,7 +252,7 @@ public class AnimationTest {
             double y = py + r * Math.cos(phi);
             double z = pz + r * Math.sin(phi) * Math.sin(theta);
 
-            VfxEntity entity = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
+            VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
             entity.setPos(x, y, z);
             level.addEntity(entity);
 
@@ -354,7 +359,7 @@ public class AnimationTest {
 
         float blocksPerTick = 0.5f;
 
-        VfxEntity bullet = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        VfxEntity bullet = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
         bullet.setPos(spawnPos);
         bullet.setInfinitePersist(true);
         bullet.setOnTick(e -> {
