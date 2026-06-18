@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.bdanimator.entity;
 
 import io.github.stainlessstasis.bdanimator.animation.VfxAnimation;
+import io.github.stainlessstasis.bdanimator.animation.VfxSnapshot;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -8,9 +9,13 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -18,6 +23,7 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("NullableProblems")
 public class VfxEntity extends Entity {
+    private VfxSnapshot lastSnapshot = VfxSnapshot.DEFAULT;
     private final Deque<VfxAnimation> animationQueue = new ArrayDeque<>();
     private @Nullable VfxAnimation currentAnimation;
     private long animationStartTick;
@@ -78,6 +84,24 @@ public class VfxEntity extends Entity {
         this.lastProgress = t;
         return t;
     }
+
+    private VfxSnapshot captureEndSnapshot(VfxAnimation animation) {
+        Vector3f translation = new Vector3f();
+        Vector3f scale = new Vector3f();
+        Quaternionf rotation = new Quaternionf();
+        Vector3f overlayColor = new Vector3f();
+        float[] intensity = new float[1];
+
+        animation.translationChannel().evaluate(1f, translation);
+        animation.scaleChannel().evaluate(1f, scale);
+        animation.rotationChannel().evaluate(1f, rotation);
+        animation.overlayColorChannel().evaluate(1f, overlayColor);
+        animation.overlayIntensityChannel().evaluate(1f, intensity);
+        BlockState blockState = animation.blockStateChannel().evaluate(1f);
+
+        return new VfxSnapshot(translation, scale, rotation, overlayColor, intensity[0], blockState);
+    }
+
 
     @Override
     public void tick() {

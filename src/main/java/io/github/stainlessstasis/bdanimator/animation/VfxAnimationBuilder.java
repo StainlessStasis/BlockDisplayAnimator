@@ -66,6 +66,12 @@ public class VfxAnimationBuilder {
     private KeyframedChannel<Vector3f, Vector3f> overlayColorChannel;
     private KeyframedChannel<Float, float[]> overlayIntensityChannel;
     private BlockStateChannel blockStateChannel;
+    private boolean inheritTranslation;
+    private boolean inheritScale;
+    private boolean inheritRotation;
+    private boolean inheritOverlayColor;
+    private boolean inheritOverlayIntensity;
+    private boolean inheritBlockState;
     private @Nullable Consumer<VfxEntity> onStart;
     private @Nullable Consumer<VfxEntity> onEnd;
     private @Nullable Consumer<VfxEntity> onLoop;
@@ -96,6 +102,34 @@ public class VfxAnimationBuilder {
     public VfxAnimationBuilder onKeyframeReached(float time, Consumer<VfxEntity> callback) {
         this.keyframeCallbacks.put(time, callback);
         return this;
+    }
+
+    public VfxAnimationBuilder inheritTranslation() {
+        this.inheritTranslation = true;
+        return this;
+    }
+    public VfxAnimationBuilder inheritScale() {
+        this.inheritScale = true;
+        return this;
+    }
+    public VfxAnimationBuilder inheritRotation() {
+        this.inheritRotation = true;
+        return this;
+    }
+    public VfxAnimationBuilder inheritOverlayColor() {
+        this.inheritOverlayColor = true;
+        return this;
+    }
+    public VfxAnimationBuilder inheritOverlayIntensity() {
+        this.inheritOverlayIntensity = true;
+        return this;
+    }
+    public VfxAnimationBuilder inheritBlockState() {
+        this.inheritBlockState = true;
+        return this;
+    }
+    public VfxAnimationBuilder inheritAll() {
+        return inheritTranslation().inheritScale().inheritRotation().inheritOverlayColor().inheritOverlayIntensity().inheritBlockState();
     }
 
     public VfxAnimationBuilder translation(Vector3f start, Consumer<Vector3fBuilder> builderConsumer) {
@@ -188,7 +222,9 @@ public class VfxAnimationBuilder {
         if (overlayColorChannel == null) overlayColorChannel = DEFAULT_OVERLAY_COLOR;
         if (overlayIntensityChannel == null) overlayIntensityChannel = DEFAULT_OVERLAY_INTENSITY;
         if (blockStateChannel == null) blockStateChannel = DEFAULT_BLOCK_STATE;
-        return new VfxAnimation(translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel,
+        return new VfxAnimation(
+                translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel,
+                inheritTranslation, inheritScale, inheritRotation, inheritOverlayColor, inheritOverlayIntensity, inheritBlockState,
                 durationTicks, loopCount, onStart, onEnd, onLoop, keyframeCallbacks
         );
     }
