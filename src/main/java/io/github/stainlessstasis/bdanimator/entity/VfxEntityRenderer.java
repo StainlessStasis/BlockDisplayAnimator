@@ -42,12 +42,6 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         if (anim == null) return;
 
         float t = entity.getAnimationProgress(partialTicks);
-        anim.translationChannel().evaluate(t, state.translation);
-        anim.scaleChannel().evaluate(t, state.scale);
-        anim.rotationChannel().evaluate(t, state.rotation);
-        anim.overlayColorChannel().evaluate(t, state.overlayColor);
-        anim.overlayIntensityChannel().evaluate(t, state.overlayIntensity);
-
         var context = new VfxAnimation.AnimationContext(entity, entity.tickCount+partialTicks, partialTicks);
         anim.translationChannel().evaluate(t, state.translation);
         if (anim.translationModifier() != null) {
@@ -71,6 +65,7 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         }
 
         state.blockState = anim.blockStateChannel().evaluate(t);
+
         state.brightnessOverride = entity.getBrightnessOverride();
         state.rotationPivot = anim.rotationPivot();
 

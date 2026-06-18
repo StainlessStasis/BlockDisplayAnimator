@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.bdanimator.animation;
 
+import com.mojang.math.Transformation;
 import io.github.stainlessstasis.bdanimator.easing.Easing;
 import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.BDAnimatorEntities;
@@ -8,9 +9,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class AnimationTest {
@@ -261,6 +265,79 @@ public class AnimationTest {
         }
 
         Minecraft.getInstance().player.sendSystemMessage(Component.literal("Spawned " + count + " VFX entities"));
+    }
+
+    public static void runVanillaPerformanceTest() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+
+        double px = player.getX();
+        double py = player.getY();
+        double pz = player.getZ();
+        float radius = 20f;
+
+        BlockState[] blocks = {
+                Blocks.CYAN_STAINED_GLASS.defaultBlockState(),
+                Blocks.DIAMOND_BLOCK.defaultBlockState(),
+                Blocks.FURNACE.defaultBlockState(),
+                Blocks.OAK_LOG.defaultBlockState(),
+                Blocks.STONE.defaultBlockState(),
+        };
+
+        int count = 5000;
+        for (int i = 0; i < count; i++) {
+            double theta = Math.random() * 2 * Math.PI;
+            double phi = Math.acos(2 * Math.random() - 1);
+            double r = radius * Math.cbrt(Math.random());
+            double x = px + r * Math.sin(phi) * Math.cos(theta);
+            double y = py + r * Math.cos(phi);
+            double z = pz + r * Math.sin(phi) * Math.sin(theta);
+
+            Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
+            entity.setPos(x, y, z);
+            entity.setBlockState(blocks[i % blocks.length]);
+
+            int duration = 1800 + (int) (Math.random() * 900);
+
+            Vector3f endTranslation = new Vector3f(
+                    (float) (Math.random() * 4 - 2),
+                    (float) (Math.random() * 4),
+                    (float) (Math.random() * 4 - 2)
+            );
+            Vector3f endScale = new Vector3f(
+                    (float) (Math.random() * 1.5f + 0.5f),
+                    (float) (Math.random() * 1.5f + 0.5f),
+                    (float) (Math.random() * 1.5f + 0.5f)
+            );
+            Quaternionf endRotation = new Quaternionf().rotationXYZ(
+                    (float) Math.toRadians(Math.random() * 720),
+                    (float) Math.toRadians(Math.random() * 720),
+                    (float) Math.toRadians(Math.random() * 720)
+            );
+
+            entity.setTransformation(new Transformation(
+                    new Vector3f(0, 0, 0),
+                    new Quaternionf(),
+                    new Vector3f(0.5f, 0.5f, 0.5f),
+                    null
+            ));
+
+            entity.setTransformationInterpolationDuration(duration);
+            entity.setTransformationInterpolationDelay(0);
+
+            entity.setTransformation(new Transformation(
+                    endTranslation,
+                    endRotation,
+                    endScale,
+                    null
+            ));
+
+            level.addEntity(entity);
+        }
+
+        Minecraft.getInstance().player.sendSystemMessage(Component.literal("Spawned " + count + " vanilla Display entities"));
     }
 
     public static void runBulletTest() {

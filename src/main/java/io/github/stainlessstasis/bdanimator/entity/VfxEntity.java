@@ -10,6 +10,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
@@ -180,7 +181,7 @@ public class VfxEntity extends Entity {
         }
 
         if (currentAnimation != null) {
-            if (currentAnimation.keyframeCallbacks() != null) {
+            if (currentAnimation.keyframeCallbacks() != null && !currentAnimation.keyframeCallbacks().isEmpty()) {
                 float previousProgress = this.lastProgress;
                 float progress = getAnimationProgress(0f);
                 currentAnimation.keyframeCallbacks().forEach((time, callback) -> {
