@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.bdanimator.animation;
 
 import io.github.stainlessstasis.bdanimator.easing.Easing;
+import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.BDAnimatorEntities;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import net.minecraft.client.Minecraft;
@@ -59,18 +60,18 @@ public class AnimationTest {
                             .addKeyframe(fireTransition, sequence[1])
                             .addKeyframe(smokeTransition, sequence[2]))
                     .translation(0, 0, 0, t -> t
-                            .addKeyframe(1f, dirX * radius, 0, dirZ * radius, Easing.EASE_OUT_EXPO))
+                            .addKeyframe(1f, dirX * radius, 0, dirZ * radius, Easings.EASE_OUT_EXPO))
                     .scale(startScale, s -> s
-                            .addKeyframe(0.7f, startScale * 0.75f, Easing.EASE_IN_QUAD)
-                            .addKeyframe(1f, endScale, Easing.EASE_IN_QUAD))
+                            .addKeyframe(0.7f, startScale * 0.75f, Easings.EASE_IN_QUAD)
+                            .addKeyframe(1f, endScale, Easings.EASE_IN_QUAD))
                     .rotation(randomPitch, randomYaw, randomRoll, r -> r
-                            .addKeyframe(1f, randomEndPitch, randomEndYaw, randomEndRoll, Easing.EASE_OUT_QUAD))
+                            .addKeyframe(1f, randomEndPitch, randomEndYaw, randomEndRoll, Easings.EASE_OUT_QUAD))
                     .overlay(new Vector3f(1f, 0.5f, 0f), 0.8f, o -> o
-                            .addColorKeyframe(fireTransition, new Vector3f(0.8f, 0.0f, 0f), Easing.EASE_IN_QUAD)
-                            .addColorKeyframe(smokeTransition, new Vector3f(0.1f, 0.0f, 0.0f), Easing.EASE_IN_QUAD)
-                            .addIntensityKeyframe(smokeTransition, 0.2f, Easing.EASE_IN_QUAD)
+                            .addColorKeyframe(fireTransition, new Vector3f(0.8f, 0.0f, 0f), Easings.EASE_IN_QUAD)
+                            .addColorKeyframe(smokeTransition, new Vector3f(0.1f, 0.0f, 0.0f), Easings.EASE_IN_QUAD)
+                            .addIntensityKeyframe(smokeTransition, 0.2f, Easings.EASE_IN_QUAD)
                             .addColorKeyframe(1f, new Vector3f(0.05f, 0.05f, 0.05f))
-                            .addIntensityKeyframe(1f, 0f, Easing.EASE_IN_QUAD))
+                            .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
                     .build((int)(duration + Math.random() * 10));
 
             entity.playAnimation(anim);
@@ -93,9 +94,9 @@ public class AnimationTest {
                 .onStart(e -> player.sendSystemMessage(Component.literal("Anim 1")))
                 .blockState(Blocks.ANVIL.defaultBlockState(), b -> {})
                 .scale(1f, s -> s
-                        .addKeyframe(1f, 1.5f, 0.4f, 1.5f, Easing.EASE_OUT_QUAD))
+                        .addKeyframe(1f, 1.5f, 0.4f, 1.5f, Easings.EASE_OUT_QUAD))
                 .overlay(1f, 0f, 0f, 0f, o -> o
-                        .addIntensityKeyframe(1f, 0.7f, Easing.EASE_IN_QUAD))
+                        .addIntensityKeyframe(1f, 0.7f, Easings.EASE_IN_QUAD))
                 .build(20);
 
         VfxAnimation anim2 = VfxAnimationBuilder.create()
@@ -103,15 +104,15 @@ public class AnimationTest {
                 .inheritScale()
                 .blockState(Blocks.LECTERN.defaultBlockState(), b -> {})
                 .translation(t -> t
-                        .addKeyframe(1f, 0f, 6f, 0f, Easing.EASE_OUT_EXPO))
+                        .addKeyframe(1f, 0f, 6f, 0f, Easings.EASE_OUT_EXPO))
                 .scale(s -> s
-                        .addKeyframe(0.2f, 0.4f, 2.5f, 0.4f, Easing.EASE_OUT_ELASTIC)
-                        .addKeyframe(1f, 1f, 1f, 1f, Easing.EASE_IN_QUAD))
+                        .addKeyframe(0.2f, 0.4f, 2.5f, 0.4f, Easings.EASE_OUT_ELASTIC)
+                        .addKeyframe(1f, 1f, 1f, 1f, Easings.EASE_IN_QUAD))
                 .rotation(0, 0, 0, r -> r
-                        .addKeyframe(1f, 0f, 720f, 0f, Easing.EASE_OUT_CUBIC))
+                        .addKeyframe(1f, 0f, 720f, 0f, Easings.EASE_OUT_CUBIC))
                 .overlay(1f, 0.6f, 0f, 0.7f, o -> o
                         .addColorKeyframe(1f, new Vector3f(1f, 1f, 1f))
-                        .addIntensityKeyframe(1f, 0.2f, Easing.EASE_OUT_QUAD))
+                        .addIntensityKeyframe(1f, 0.2f, Easings.EASE_OUT_QUAD))
                 .build(30);
 
         VfxAnimation anim3 = VfxAnimationBuilder.create()
@@ -130,12 +131,12 @@ public class AnimationTest {
                 })
                 .inheritScale()
                 .scale(s -> s
-                        .addKeyframe(1f, 3f, Easing.EASE_OUT_EXPO))
+                        .addKeyframe(1f, 3f, Easings.EASE_OUT_EXPO))
                 .inheritOverlayColor()
                 .inheritOverlayIntensity()
                 .overlay(o -> o
                         .addColorKeyframe(1f, new Vector3f(0f, 0f, 0f))
-                        .addIntensityKeyframe(1f, 0f, Easing.EASE_IN_QUAD))
+                        .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
                 .build(200);
 
         entity.playOrQueueAnimation(anim1);
@@ -170,27 +171,27 @@ public class AnimationTest {
                 .loop(2)
                 .blockState(Blocks.MAGMA_BLOCK.defaultBlockState(), b -> {})
                 .translation(0, 0, 0, t -> t
-                        .addKeyframe(0.25f, 0, 3, 0, Easing.EASE_OUT_QUAD)
-                        .addKeyframe(0.5f, 2, -3, 0, Easing.EASE_IN_OUT_QUAD)
-                        .addKeyframe(0.75f, 2, 0, 0, Easing.EASE_IN_QUAD)
-                        .addKeyframe(1f, 0, 0, 0, Easing.EASE_OUT_BOUNCE))
+                        .addKeyframe(0.25f, 0, 3, 0, Easings.EASE_OUT_QUAD)
+                        .addKeyframe(0.5f, 2, -3, 0, Easings.EASE_IN_OUT_QUAD)
+                        .addKeyframe(0.75f, 2, 0, 0, Easings.EASE_IN_QUAD)
+                        .addKeyframe(1f, 0, 0, 0, Easings.EASE_OUT_BOUNCE))
                 .scale(0.5f, s -> s
-                        .addKeyframe(0.5f, (float)(Math.random()*2), (float)(Math.random()*2), (float)(Math.random()*2), Easing.EASE_OUT_ELASTIC)
-                        .addKeyframe(1f, 0.5f, Easing.EASE_IN_QUAD))
+                        .addKeyframe(0.5f, (float)(Math.random()*2), (float)(Math.random()*2), (float)(Math.random()*2), Easings.EASE_OUT_ELASTIC)
+                        .addKeyframe(1f, 0.5f, Easings.EASE_IN_QUAD))
                 .rotation(0, 0, 0, r -> r
-                        .addKeyframe(0.5f, 0, 180, 0, Easing.EASE_IN_OUT_QUAD)
-                        .addKeyframe(1f, 0, 360, 0, Easing.EASE_OUT_QUAD))
+                        .addKeyframe(0.5f, 0, 180, 0, Easings.EASE_IN_OUT_QUAD)
+                        .addKeyframe(1f, 0, 360, 0, Easings.EASE_OUT_QUAD))
                 .overlay(new Vector3f(1, 0.3f, 0), 0.9f, o -> o
-                        .addColorKeyframe(0.5f, new Vector3f(0.2f, 0.8f, 0.7f), Easing.EASE_IN_QUAD)
-                        .addIntensityKeyframe(0.8f, 0.5f, Easing.EASE_OUT_QUAD)
+                        .addColorKeyframe(0.5f, new Vector3f(0.2f, 0.8f, 0.7f), Easings.EASE_IN_QUAD)
+                        .addIntensityKeyframe(0.8f, 0.5f, Easings.EASE_OUT_QUAD)
                         .addColorKeyframe(1f, new Vector3f(0.1f))
-                        .addIntensityKeyframe(1f, 0f, Easing.EASE_IN_QUAD))
+                        .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
                 .build(60);
 
         entity.playAnimation(anim);
     }
 
-    public static void runCoolEasings() {
+    public static void runCoolEasingss() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         ClientLevel level = Minecraft.getInstance().level;
@@ -205,11 +206,11 @@ public class AnimationTest {
         VfxAnimation anim = VfxAnimationBuilder.create()
                 .blockState(Blocks.MAGMA_BLOCK.defaultBlockState(), b -> {})
                 .translation(0, 0, 0, t -> t
-                        .addKeyframe(1f, (float)(Math.random() * 4 - 2), (float)(Math.random() * 4), (float)(Math.random() * 4 - 2), Easing.EASE_IN_QUAD))
+                        .addKeyframe(1f, (float)(Math.random() * 4 - 2), (float)(Math.random() * 4), (float)(Math.random() * 4 - 2), Easings.EASE_IN_QUAD))
                 .scale(scale, s -> s
-                        .addKeyframe(1f, scale * 5f, Easing.EASE_IN_OUT_ELASTIC))
+                        .addKeyframe(1f, scale * 5f, Easings.EASE_IN_OUT_ELASTIC))
                 .rotation(0, 0, 0, r -> r
-                        .addKeyframe(1f, (float)(Math.random() * 30), 360 + (float)(Math.random() * 360), (float)(Math.random() * 30), Easing.EASE_OUT_EXPO))
+                        .addKeyframe(1f, (float)(Math.random() * 30), 360 + (float)(Math.random() * 360), (float)(Math.random() * 30), Easings.EASE_OUT_EXPO))
                 .build(60);
         entity.playAnimation(anim);
     }
@@ -250,11 +251,11 @@ public class AnimationTest {
             VfxAnimation anim = VfxAnimationBuilder.create()
                     .blockState(blocks[i % blocks.length], b -> {})
                     .translation(0, 0, 0, t -> t
-                            .addKeyframe(1f, (float)(Math.random() * 4 - 2), (float)(Math.random() * 4), (float)(Math.random() * 4 - 2), Easing.random(player.getRandom())))
+                            .addKeyframe(1f, (float)(Math.random() * 4 - 2), (float)(Math.random() * 4), (float)(Math.random() * 4 - 2), Easings.random(player.getRandom())))
                     .scale(0.5f, s -> s
-                            .addKeyframe(1f, (float)(Math.random() * 1.5f + 0.5f), (float)(Math.random() * 1.5f + 0.5f), (float)(Math.random() * 1.5f + 0.5f), Easing.random(player.getRandom())))
+                            .addKeyframe(1f, (float)(Math.random() * 1.5f + 0.5f), (float)(Math.random() * 1.5f + 0.5f), (float)(Math.random() * 1.5f + 0.5f), Easings.random(player.getRandom())))
                     .rotation(0, 0, 0, rot -> rot
-                            .addKeyframe(1f, (float)(Math.random() * 720), (float)(Math.random() * 720), (float)(Math.random() * 720), Easing.random(player.getRandom())))
+                            .addKeyframe(1f, (float)(Math.random() * 720), (float)(Math.random() * 720), (float)(Math.random() * 720), Easings.random(player.getRandom())))
                     .build(duration);
             entity.playAnimation(anim);
         }

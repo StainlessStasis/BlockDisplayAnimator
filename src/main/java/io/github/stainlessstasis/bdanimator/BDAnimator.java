@@ -1,6 +1,8 @@
 package io.github.stainlessstasis.bdanimator;
 
+import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.BDAnimatorEntities;
+import net.minecraft.resources.Identifier;
 import net.neoforged.fml.common.EventBusSubscriber;
 import org.slf4j.Logger;
 
@@ -20,9 +22,13 @@ public class BDAnimator {
     public BDAnimator(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
         BDAnimatorEntities.register(modEventBus);
+        Easings.EASINGS.register(modEventBus);
 //        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {}
 
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
+    }
 }
