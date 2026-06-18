@@ -20,5 +20,8 @@ Loop animations a fixed number of times or infinitely. Hook into `onStart`, `onE
 Apply custom per-tick modifiers to translation, scale, rotation, and overlay color/intensity on top of the keyframed values, for effects like wobble, sway, or pulsing that aren't easily expressed as keyframes alone.<br><br>
 *Note: These should be scaled by the context's `interpolatedTicks` so everything stays consistent with any framerate.*
 
+### Entity Binding
+Bind animations to follow entities with an optional offset. Can operate in either global or local space.
+
 ### Builder API
-A fluent builder lets you construct animations declaratively, chaining translation, scale, rotation, overlay, and block state channels together with minimal boilerplate.
+A fluent builder that lets you construct animations declaratively, chaining translation, scale, rotation, overlay, and block state channels with minimal boilerplate.
