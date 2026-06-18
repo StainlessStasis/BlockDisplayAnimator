@@ -51,7 +51,7 @@ public record VfxAnimation(
         void apply(float[] value, AnimationContext context);
     }
 
-    public record AnimationContext(VfxEntity entity, float animationTicks, float partialTick) {
+    public record AnimationContext(VfxEntity entity, float interpolatedTicks, float partialTick) {
         public float getNormalizedAnimationProgress() {
             return entity.getAnimationProgress(partialTick);
         }

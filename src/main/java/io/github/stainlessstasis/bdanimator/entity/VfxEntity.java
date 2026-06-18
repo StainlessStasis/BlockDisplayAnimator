@@ -52,14 +52,41 @@ public class VfxEntity extends Entity {
      * See {@link #playOrQueueAnimation} for queueing animations.
      */
     public void playAnimation(VfxAnimation animation) {
+        playAnimation(animation, 0f);
+    }
+
+    public void playAnimation(VfxAnimation animation, float progressOffset) {
         this.currentAnimation = animation;
-        this.animationStartTick = this.tickCount;
         this.animationDurationTicks = animation.durationTicks();
         this.loopsCompleted = 0;
-        this.lastProgress = 0f;
+
+        float progress = Math.clamp(progressOffset, 0f, 1f);
+        int tickOffset = (int) (this.animationDurationTicks * progress);
+        this.animationStartTick = this.tickCount - tickOffset;
+        this.lastProgress = progress;
+
         if (animation.onStart() != null) {
             animation.onStart().accept(this);
         }
+    }
+
+    public void playAnimationWithOffset(VfxAnimation animation, float seconds) {
+        int durationTicks = animation.durationTicks();
+        if (durationTicks <= 0) {
+            playAnimation(animation, 0f);
+            return;
+        }
+        float ticksOffset = seconds * 20f;
+        playAnimation(animation, ticksOffset / (float) durationTicks);
+    }
+
+    public void playAnimationWithOffset(VfxAnimation animation, int ticks) {
+        int durationTicks = animation.durationTicks();
+        if (durationTicks <= 0) {
+            playAnimation(animation, 0f);
+            return;
+        }
+        playAnimation(animation, (float) ticks / (float) durationTicks);
     }
 
     /**

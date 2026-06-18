@@ -119,13 +119,13 @@ public class AnimationTest {
                 .inheritBlockState()
                 .inheritRotation()
                 .onTickRotation((rotation, context) -> {
-                    rotation.rotationXYZ(0, (float) Math.toRadians(context.animationTicks() * 30f), 0);
+                    rotation.rotationXYZ(0, (float) Math.toRadians(context.interpolatedTicks() * 30f), 0);
                 })
                 .onTickTranslation((translation, context) -> {
-                    translation.y += (float) (Math.sin(context.animationTicks() * 0.3f) * 4f);
+                    translation.y += (float) (Math.sin(context.interpolatedTicks() * 0.3f) * 4f);
                 })
                 .onTickScale((scale, context) -> {
-                    scale.mul(Math.max(1.5f, (float) (Math.sin(context.animationTicks() * 0.3f) * 4f)));
+                    scale.mul(Math.max(1.5f, (float) (Math.sin(context.interpolatedTicks() * 0.3f) * 4f)));
                 })
                 .inheritScale()
                 .scale(s -> s
@@ -259,5 +259,37 @@ public class AnimationTest {
         }
 
         Minecraft.getInstance().player.sendSystemMessage(Component.literal("Spawned " + count + " VFX entities"));
+    }
+
+    public static void runBulletTest() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+
+        Vec3 spawnPos = player.getEyePosition().add(player.getLookAngle().scale(0.5f));
+        Vec3 lookAngle = player.getLookAngle().normalize();
+
+        float pitch = player.getXRot();
+        float yaw = -player.getYRot();
+
+        float blocksPerTick = 0.5f;
+
+        VfxEntity bullet = new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        bullet.setPos(spawnPos);
+        bullet.setInfinitePersist(true);
+        bullet.setOnTick(e -> {
+            Vec3 currentPos = e.position();
+            e.setPos(currentPos.add(lookAngle.scale(blocksPerTick)));
+        });
+        level.addEntity(bullet);
+
+        VfxAnimation bulletAnim = VfxAnimationBuilder.create()
+                .scale(0.4f, 0.4f, 1.5f, s -> {})
+                .blockState(Blocks.SHROOMLIGHT.defaultBlockState(), b -> {})
+                .rotation(pitch, yaw, 0f, r -> {})
+                .build(200);
+
+        bullet.playAnimation(bulletAnim);
     }
 }
