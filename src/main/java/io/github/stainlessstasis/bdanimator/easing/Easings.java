@@ -18,7 +18,7 @@ import static io.github.stainlessstasis.bdanimator.easing.EasingConstants.*;
 @EventBusSubscriber
 public class Easings {
     public static final ResourceKey<Registry<Easing>> EASING_REGISTRY_KEY = ResourceKey.createRegistryKey(BDAnimator.id("easing"));
-    public static final Registry<Easing> EASING_REGISTRY = new RegistryBuilder<>(EASING_REGISTRY_KEY)
+    private static final Registry<Easing> EASING_REGISTRY = new RegistryBuilder<>(EASING_REGISTRY_KEY)
             .defaultKey(BDAnimator.id("linear"))
             .create();
     public static final DeferredRegister<Easing> EASINGS = DeferredRegister.create(EASING_REGISTRY, BDAnimator.MODID);
@@ -30,6 +30,11 @@ public class Easings {
 
     private static Supplier<Easing> register(String id, Easing.EasingFunction formula) {
         return EASINGS.register(id, () -> new Easing(formula));
+    }
+
+    @SubscribeEvent
+    public static void registerRegistries(NewRegistryEvent event) {
+        event.register(EASING_REGISTRY);
     }
 
     // Credit --- Easing formulas from: https://easings.net/
@@ -70,14 +75,4 @@ public class Easings {
     });
     public static final Supplier<Easing> EASE_IN_BOUNCE = register("ease_in_bounce", t -> 1 - EASE_OUT_BOUNCE.get().apply(1 - t));
     public static final Supplier<Easing> EASE_IN_OUT_BOUNCE = register("ease_in_out_bounce", t -> t < 0.5 ? (1 - EASE_OUT_BOUNCE.get().apply(1 - 2 * t)) / 2 : (1 + EASE_OUT_BOUNCE.get().apply(2 * t - 1)) / 2);
-
-//    @SubscribeEvent
-//    public static void register(RegisterEvent event) {
-//
-//    }
-
-    @SubscribeEvent
-    public static void registerRegistries(NewRegistryEvent event) {
-        event.register(EASING_REGISTRY);
-    }
 }
