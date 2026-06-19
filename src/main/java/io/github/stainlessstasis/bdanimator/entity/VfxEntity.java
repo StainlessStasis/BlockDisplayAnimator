@@ -50,6 +50,7 @@ public class VfxEntity extends Entity {
     private long pausedAtTick = 0;
     private float pausedProgress = 0f;
     private float playSpeed = 1f;
+    private boolean reverseStopsAtStart = true;
     private @Nullable Consumer<VfxEntity> onTick;
     private @Nullable Consumer<VfxEntity> onRemoval;
     private int nextKeyframeCallbackIndex = 0;
@@ -185,6 +186,7 @@ public class VfxEntity extends Entity {
         this.lastProgress = currentProgress;
     }
     public float getPlaySpeed() { return playSpeed; }
+    public void setReverseStopsAtStart(boolean value) { this.reverseStopsAtStart = value; }
 
     public float getAnimationProgress(float partialTick) {
         if (isPaused) return pausedProgress;
@@ -293,6 +295,14 @@ public class VfxEntity extends Entity {
 
         boolean forwardComplete = playSpeed >= 0 && lastProgress >= 1f;
         boolean reverseComplete = playSpeed < 0 && lastProgress <= 0f;
+        if (reverseComplete && reverseStopsAtStart) {
+            if (currentAnimation.onEnd() != null) currentAnimation.onEnd().accept(this);
+            lastSnapshot = captureEndSnapshot(currentAnimation);
+            currentAnimation = null;
+            loopsCompleted = 0;
+            tickDespawn();
+            return;
+        }
         if (forwardComplete || reverseComplete) {
             int loopCount = currentAnimation.loopCount();
             boolean isLastLoop = loopCount >= 0 && loopsCompleted >= loopCount;
@@ -341,7 +351,7 @@ public class VfxEntity extends Entity {
         float scaledTicks = startProgress * animationDurationTicks;
         if (playSpeed != 0f) {
             float ticksSince = scaledTicks / playSpeed;
-            this.animationStartTick = (long)(this.tickCount - ticksSince);
+            this.animationStartTick = (long)(this.tickCount - ticksSince) - 1;
         }
     }
 
