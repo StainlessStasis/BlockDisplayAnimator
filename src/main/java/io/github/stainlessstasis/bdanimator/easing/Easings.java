@@ -6,6 +6,55 @@ import java.util.*;
 
 import static io.github.stainlessstasis.bdanimator.easing.EasingConstants.*;
 
+/**
+ * Easings are functions which can drastically affect the way an animation looks, giving it a different feeling.<br>
+ * All easings from <a href="https://easings.net/">easings.net</a> are built in, but you
+ * can also call {@link #register(String, Easing.EasingFunction)} to register your own easing function.
+ *
+ * <p>Each easing (except linear) has 3 types:
+ *  <ul>
+ *  <li><b>IN</b> - starts slow, accelerates toward the end</li>
+ *  <li><b>OUT</b> - starts fast, decelerates toward the end</li>
+ *  <li><b>IN_OUT</b> - slow at both ends, fast in the middle</li>
+ *  </ul>
+ *
+ * <p>Unsure which easing to use? Try matching the easing with the "feeling" of your animation:
+ * <ul>
+ *   <li><b>LINEAR</b> - constant speed, no acceleration. Feels robotic and unnatural for physical objects.
+ *   Best for things that should track a value mechanically, like a constant spin.</li>
+ *
+ *   <li><b>SINE</b> - the gentlest curve, barely distinguishable from linear at a glance.
+ *   Feels organic and calm, like breathing or floating. Good for looping idle animations and subtle ambient motion.</li>
+ *
+ *   <li><b>QUAD</b> - a noticeable but natural-feeling curve. Feels responsive and grounded, like everyday physical objects.
+ *   When in doubt, start here.</li>
+ *
+ *   <li><b>CUBIC</b> - more pronounced than QUAD. Feels deliberate and weighty, like something with real mass starting or stopping.
+ *   Good for larger movements that should feel purposeful.</li>
+ *
+ *   <li><b>QUART</b> - aggressive curve, especially at the extremes. Feels snappy and high-energy.
+ *   OUT_QUART in particular is great for explosions and impacts that need to feel violent.</li>
+ *
+ *   <li><b>QUINT</b> - very aggressive. Almost all motion is compressed into a tiny window.
+ *   Feels explosive and extreme. Use sparingly for maximum dramatic effect.</li>
+ *
+ *   <li><b>EXPO</b> - the most extreme of the "smooth" curves. IN_EXPO barely moves for most of its duration then launches suddenly.
+ *   OUT_EXPO does the reverse - nearly instant movement that fades into stillness.</li>
+ *
+ *   <li><b>CIRC</b> - follows a circular arc. Feels similar to EXPO but more sharp and precise.
+ *   Good for mechanical effects.</li>
+ *
+ *   <li><b>BACK</b> - overshoots the target slightly before settling. Feels springy and alive, like something with momentum that corrects itself.
+ *   Great for objects that should feel like they have personality.</li>
+ *
+ *   <li><b>ELASTIC</b> - overshoots dramatically and oscillates like a spring before settling.
+ *   Feels bouncy and exaggerated. Use for anything that should feel rubbery and alive. Can be overwhelming if overused.</li>
+ *
+ *   <li><b>BOUNCE</b> - simulates a physical bounce, decelerating in discrete steps.
+ *   OUT_BOUNCE feels like dropping a ball and watching it settle. Feels playful and physical.
+ *   IN_BOUNCE is rarely useful on its own but can work well when paired with other animations in a queue.</li>
+ * </ul>
+ */
 public class Easings {
     private static final Map<String, Easing> REGISTRY = new LinkedHashMap<>();
 
