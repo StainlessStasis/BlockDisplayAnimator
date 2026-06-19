@@ -19,7 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NovaBombDemo {
@@ -42,7 +41,7 @@ public class NovaBombDemo {
 
         core.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.CRYING_OBSIDIAN.defaultBlockState(), b -> {})
-                .onTickRotation((r, ctx) -> {
+                .onFrameRotation((r, ctx) -> {
                     r.set(coreRotation);
                     if (hasExploded.get()) {
                         return;
@@ -81,13 +80,13 @@ public class NovaBombDemo {
                     .blockState(orbitBlock, b -> {})
                     .scale(0f, s -> s
                             .addKeyframe(1f, scale, Easings.EASE_OUT_EXPO))
-                    .onTickTranslation((t, ctx) -> {
+                    .onFrameTranslation((t, ctx) -> {
                         float angle = angleOffset + ctx.interpolatedTicks() * orbitSpeed;
                         t.x += (float)(Math.cos(angle) * orbitRadius);
                         t.z += (float)(Math.sin(angle) * orbitRadius);
                         t.y += (float)(Math.sin(angle + orbitTilt) * orbitRadius * 0.4f);
                     })
-                    .onTickRotation((r, ctx) -> r.rotateY(ctx.interpolatedTicks() * rotSpeed))
+                    .onFrameRotation((r, ctx) -> r.rotateY(ctx.interpolatedTicks() * rotSpeed))
                     .overlay(0.3f, 0.0f, 1f, randomBetween(0.2f, 0.5f), o -> {})
                     .loopInfinite()
                     .build(20));
@@ -136,7 +135,7 @@ public class NovaBombDemo {
                     .scale(s -> s
                             .addKeyframe(0.6f, snap.scale().x * 1.3f, Easings.EASE_OUT_QUAD)
                             .addKeyframe(1f, 0f, Easings.EASE_IN_EXPO))
-                    .onTickRotation((r, ctx) ->
+                    .onFrameRotation((r, ctx) ->
                             r.rotateY(ctx.interpolatedTicks() * 0.6f * (1f - ctx.getAnimationProgress())))
                     .overlay(0.5f, 0f, 1f, 0.5f, o -> o
                             .addColorKeyframe(0.7f, new Vector3f(1f, 0.8f, 1f), Easings.EASE_IN_EXPO)
@@ -170,7 +169,7 @@ public class NovaBombDemo {
                             .addKeyframe(1f, 0f, Easings.EASE_IN_EXPO))
                     .translation(0, 0, 0, t -> t
                             .addKeyframe(1f, -startX, randomBetween(-0.5f, 0.5f), -startZ, Easings.EASE_IN_EXPO))
-                    .onTickRotation((r, ctx) ->
+                    .onFrameRotation((r, ctx) ->
                             r.rotateY(ctx.interpolatedTicks() * randomBetween(0.2f, 0.5f)))
                     .overlay(0.4f, 0f, 1f, 0.6f, o -> o
                             .addIntensityKeyframe(0.8f, 0.6f)
@@ -333,14 +332,14 @@ public class NovaBombDemo {
                     VfxAnimation seekerFly = VfxAnimationBuilder.create()
                             .blockState(Blocks.AMETHYST_BLOCK.defaultBlockState(), b -> {})
                             .scale(0f, sc -> sc.addKeyframe(1f, 0.3f, Easings.EASE_OUT_EXPO))
-                            .onTickTranslation((t, ctx) -> {
+                            .onFrameTranslation((t, ctx) -> {
                                 float angle = seekerAngle + ctx.interpolatedTicks() * seekerOrbitSpeed;
                                 float r = ctx.getAnimationProgress() * seekerOrbitRadius;
                                 t.x += (float)(Math.cos(angle) * r);
                                 t.z += (float)(Math.sin(angle) * r);
                                 t.y += 0.5f + (float)(Math.sin(ctx.interpolatedTicks() * 0.2f) * 0.5f);
                             })
-                            .onTickRotation((r, ctx) -> {
+                            .onFrameRotation((r, ctx) -> {
                                 r.rotateY(ctx.interpolatedTicks() * 0.5f);
                                 r.rotateX(ctx.interpolatedTicks() * 0.3f);
                             })

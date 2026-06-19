@@ -249,7 +249,7 @@ public class VfxDemos {
         float orbitRadius = 3f;
         orbiter.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.PURPUR_BLOCK.defaultBlockState(), builder -> {})
-                .onTickTranslation((translation, ctx) -> {
+                .onFrameTranslation((translation, ctx) -> {
                     float angle = ctx.interpolatedTicks() * 0.1f;
                     translation.x += (float)(Math.cos(angle) * orbitRadius);
                     translation.z += (float)(Math.sin(angle) * orbitRadius);

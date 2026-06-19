@@ -53,7 +53,7 @@ public class VfxEntity extends Entity {
     private long pausedAtTick = 0;
     private float pausedProgress = 0f;
     private float playSpeed = 1f;
-    private boolean reverseStopsAtStart = true;
+//    private boolean reverseStopsAtStart = true;
     private @Nullable Consumer<VfxEntity> onTick;
     private @Nullable Consumer<VfxEntity> onRemoval;
     private @Nullable Consumer<VfxEntity> onBoundEntityRemoved;
@@ -215,7 +215,7 @@ public class VfxEntity extends Entity {
         this.lastProgress = currentProgress;
     }
     public float getPlaySpeed() { return playSpeed; }
-    public void setReverseStopsAtStart(boolean value) { this.reverseStopsAtStart = value; }
+//    public void setReverseStopsAtStart(boolean value) { this.reverseStopsAtStart = value; }
 
     /**
      * Gets the normalized animation progress, based on the play speed of the animation. Goes from 1 to 0 when reversed. Always returns the same value when paused.
@@ -363,14 +363,14 @@ public class VfxEntity extends Entity {
 
         boolean forwardComplete = playSpeed >= 0 && lastProgress >= 1f;
         boolean reverseComplete = playSpeed < 0 && lastProgress <= 0f;
-        if (reverseComplete && reverseStopsAtStart) {
-            if (currentAnimation.onEnd() != null) currentAnimation.onEnd().accept(this);
-            lastSnapshot = captureSnapshot(currentAnimation, 1f);
-            currentAnimation = null;
-            loopsCompleted = 0;
-            tickDespawn();
-            return;
-        }
+//        if (reverseComplete && reverseStopsAtStart && !) {
+//            if (currentAnimation.onEnd() != null) currentAnimation.onEnd().accept(this);
+//            lastSnapshot = captureSnapshot(currentAnimation, 1f);
+//            currentAnimation = null;
+//            loopsCompleted = 0;
+//            tickDespawn();
+//            return;
+//        }
         if (forwardComplete || reverseComplete) {
             int loopCount = currentAnimation.loopCount();
             boolean isLastLoop = loopCount >= 0 && loopsCompleted >= loopCount;

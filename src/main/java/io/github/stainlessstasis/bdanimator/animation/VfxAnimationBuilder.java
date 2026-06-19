@@ -165,23 +165,23 @@ public class VfxAnimationBuilder {
         return inheritTranslation().inheritScale().inheritRotation().inheritOverlayColor().inheritOverlayIntensity().inheritBlockState().inheritItemStack();
     }
 
-    public VfxAnimationBuilder onTickTranslation(VfxAnimation.Vector3fTickModifier modifier) {
+    public VfxAnimationBuilder onFrameTranslation(VfxAnimation.Vector3fTickModifier modifier) {
         this.translationModifier = modifier;
         return this;
     }
-    public VfxAnimationBuilder onTickScale(VfxAnimation.Vector3fTickModifier modifier) {
+    public VfxAnimationBuilder onFrameScale(VfxAnimation.Vector3fTickModifier modifier) {
         this.scaleModifier = modifier;
         return this;
     }
-    public VfxAnimationBuilder onTickRotation(VfxAnimation.QuaternionfTickModifier modifier) {
+    public VfxAnimationBuilder onFrameRotation(VfxAnimation.QuaternionfTickModifier modifier) {
         this.rotationModifier = modifier;
         return this;
     }
-    public VfxAnimationBuilder onTickOverlayColor(VfxAnimation.Vector3fTickModifier modifier) {
+    public VfxAnimationBuilder onFrameOverlayColor(VfxAnimation.Vector3fTickModifier modifier) {
         this.overlayColorModifier = modifier;
         return this;
     }
-    public VfxAnimationBuilder onTickOverlayIntensity(VfxAnimation.FloatTickModifier modifier) {
+    public VfxAnimationBuilder onFrameOverlayIntensity(VfxAnimation.FloatTickModifier modifier) {
         this.overlayIntensityModifier = modifier;
         return this;
     }
