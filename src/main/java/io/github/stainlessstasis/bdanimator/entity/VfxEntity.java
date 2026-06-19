@@ -402,8 +402,7 @@ public class VfxEntity extends Entity {
     }
 
     private void updateBoundPosition() {
-        if (boundEntity == null || !boundEntity.isAlive()) {
-            if (boundEntity != null) boundEntity = null;
+        if (boundEntity == null) {
             return;
         }
 
@@ -411,7 +410,7 @@ public class VfxEntity extends Entity {
             if (onBoundEntityRemoved != null) {
                 onBoundEntityRemoved.accept(this);
             }
-            boundEntity = null;
+            unbind();
             return;
         }
 

@@ -107,26 +107,26 @@ public class VfxDemos {
                 .scale(1f, builder -> {})
                 .translation(builder -> builder
                         .addKeyframe(1f, 0, 5, 0, Easings.LINEAR))
-                .onKeyframeReached(0.25f, vfxEntity -> {
-                    vfxEntity.setPlaySpeed(0.2f);
-                    player.sendSystemMessage(Component.literal("Slowed to 0.2x"));
+                .onKeyframeReached(0.35f, vfxEntity -> {
+                    vfxEntity.setPlaySpeed(0.5f);
+                    player.sendSystemMessage(Component.literal("Slowed to 0.5x"));
                 })
                 .onKeyframeReached(0.5f, vfxEntity -> {
                     vfxEntity.pauseAnimation();
-                    player.sendSystemMessage(Component.literal("Paused at 50%"));
-                    ClientTaskScheduler.INSTANCE.runTaskLater(40, new CancellableRunnable() {
+                    player.sendSystemMessage(Component.literal("Paused"));
+                    ClientTaskScheduler.INSTANCE.runTaskLater(20, new CancellableRunnable() {
                         @Override protected void execute() {
-                            vfxEntity.setPlaySpeed(2f);
                             vfxEntity.resumeAnimation();
-                            player.sendSystemMessage(Component.literal("Resumed at 2x speed"));
+                            vfxEntity.setPlaySpeed(1.5f);
+                            player.sendSystemMessage(Component.literal("Resumed at 1.5x"));
                         }
                     });
                 })
                 .onKeyframeReached(0.9f, vfxEntity -> {
-                    vfxEntity.setPlaySpeed(-1f);
+                    vfxEntity.setPlaySpeed(-3f);
                     player.sendSystemMessage(Component.literal("Reversing!"));
                 })
-                .build(200));
+                .build(100));
     }
 
     public static void demoOverlay(ClientLevel level, LocalPlayer player) {
@@ -139,11 +139,13 @@ public class VfxDemos {
                 .scale(1f, builder -> {})
                 .overlay(1f, 0f, 0f, 0f, builder -> builder
                         .addColorKeyframe(0.25f, new Vector3f(1f, 0f, 0f))
+                        .addIntensityKeyframe(0.1f, 0f)
                         .addIntensityKeyframe(0.25f, 0.8f, Easings.EASE_OUT_QUAD)
                         .addColorKeyframe(0.5f, new Vector3f(0f, 1f, 0f))
                         .addColorKeyframe(0.75f, new Vector3f(0f, 0f, 1f))
-                        .addColorKeyframe(1f, new Vector3f(1f, 0f, 0f))
-                        .addIntensityKeyframe(1f, 0.8f))
+                        .addColorKeyframe(0.9f, new Vector3f(1f, 0f, 0f))
+                        .addIntensityKeyframe(0.9f, 0.8f)
+                        .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
                 .loopInfinite()
                 .build(100));
     }
@@ -159,6 +161,8 @@ public class VfxDemos {
                 .scale(1f, builder -> {})
                 .translation(0, 5, 0, builder -> builder
                         .addKeyframe(1f, 0, 0, 0, Easings.EASE_IN_QUART))
+                .onStart(e -> level.playLocalSound(pos.x, pos.y, pos.z,
+                        SoundEvents.ANVIL_FALL, SoundSource.AMBIENT, 1f, 0.8f, false))
                 .build(20);
 
         // stage 2: squish on impact, inheriting where it landed
@@ -168,6 +172,8 @@ public class VfxDemos {
                 .scale(1f, builder -> builder
                         .addKeyframe(0.3f, 2f, 0.2f, 2f, Easings.EASE_OUT_EXPO)
                         .addKeyframe(1f, 1f, 1f, 1f, Easings.EASE_OUT_BOUNCE))
+                .onStart(e -> level.playLocalSound(pos.x, pos.y, pos.z,
+                        SoundEvents.ANVIL_LAND, SoundSource.AMBIENT, 1f, 1.2f, false))
                 .build(30);
 
         // stage 3: explode outward, inheriting the scale
@@ -180,6 +186,8 @@ public class VfxDemos {
                 .overlay(1f, 0.5f, 0f, 0f, builder -> builder
                         .addIntensityKeyframe(0.2f, 0.9f, Easings.EASE_OUT_QUAD)
                         .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
+                .onStart(e -> level.playLocalSound(pos.x, pos.y, pos.z,
+                        SoundEvents.GENERIC_EXPLODE.value(), SoundSource.AMBIENT, 0.6f, 1.5f, false))
                 .build(25);
 
         entity.playOrQueueAnimation(drop);
@@ -216,11 +224,12 @@ public class VfxDemos {
         Vec3 pos = getFrontPosition(player);
         VfxEntity anchor = VfxEntity.create(level, pos);
         anchor.setInfinitePersist(true);
-        level.addEntity(anchor);
-        anchor.playAnimation(VfxAnimationBuilder.create()
+        VfxAnimation anchorAnim = VfxAnimationBuilder.create()
                 .blockState(Blocks.END_STONE.defaultBlockState(), builder -> {})
                 .scale(0.8f, builder -> {})
-                .build(1));
+                .build(1);
+        anchor.playAnimation(anchorAnim);
+        level.addEntity(anchor);
 
         VfxEntity orbiter = VfxEntity.create(level, pos);
         orbiter.setInfinitePersist(true);
@@ -250,24 +259,36 @@ public class VfxDemos {
         level.addEntity(snowball);
 
         VfxEntity trail = VfxEntity.createBoundTo(level, snowball);
+        trail.setOnTick(vfxEntity -> {
+            if (!level.getBlockState(snowball.blockPosition()).isAir()) {
+                snowball.discard();
+            }
+        });
         trail.setOnBoundEntityRemoved(vfxEntity -> {
             vfxEntity.stopAnimations();
         });
         level.addEntity(trail);
 
         trail.playAnimation(VfxAnimationBuilder.create()
-                .blockState(Blocks.SNOW_BLOCK.defaultBlockState(), builder -> {})
+                .blockState(Blocks.PACKED_ICE.defaultBlockState(), builder -> {})
                 .scale(0.4f, builder -> {})
                 .rotation(0, 0, 0, builder -> builder
                         .addKeyframe(1f, 360, 360, 0, Easings.LINEAR))
                 .onEnd(vfxEntity -> {
-                    VfxEntity impact = VfxEntity.create(level, vfxEntity.position());
+                    Vec3 impactPos = vfxEntity.position();
+                    level.playLocalSound(impactPos.x, impactPos.y, impactPos.z,
+                            SoundEvents.GLASS_BREAK, SoundSource.AMBIENT, 1.0f, 0.6f, false);
+
+                    VfxEntity impact = VfxEntity.create(level, impactPos);
                     level.addEntity(impact);
                     impact.playAnimation(VfxAnimationBuilder.create()
-                            .blockState(Blocks.SNOW_BLOCK.defaultBlockState(), builder -> {})
-                            .scale(0.4f, builder -> builder
-                                    .addKeyframe(1f, 0f, Easings.EASE_OUT_EXPO))
-                            .build(15));
+                            .blockState(Blocks.PACKED_ICE.defaultBlockState(), builder -> {})
+                            .overlay(1f, 1f, 1f, 0f, builder -> builder
+                                    .addIntensityKeyframe(0.0f, 0.9f)
+                                    .addIntensityKeyframe(1.0f, 0.0f, Easings.EASE_OUT_QUAD))
+                            .scale(1.0f, builder -> builder
+                                    .addKeyframe(1.0f, 1.8f, Easings.EASE_OUT_EXPO))
+                            .build(12));
                 })
                 .loopInfinite()
                 .build(40));
