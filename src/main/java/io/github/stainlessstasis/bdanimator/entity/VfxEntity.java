@@ -3,6 +3,7 @@ package io.github.stainlessstasis.bdanimator.entity;
 import io.github.stainlessstasis.bdanimator.animation.BillboardMode;
 import io.github.stainlessstasis.bdanimator.animation.VfxAnimation;
 import io.github.stainlessstasis.bdanimator.animation.VfxSnapshot;
+import io.github.stainlessstasis.bdanimator.util.PartialTickUtil;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.entity.DisplayRenderer;
@@ -34,7 +35,6 @@ public class VfxEntity extends Entity {
     private VfxSnapshot lastSnapshot = VfxSnapshot.DEFAULT;
     private final Vector3f lastRenderedTranslation = new Vector3f();
     private final Vector3f lastRenderedScale = new Vector3f(1f);
-    private final Vector3f lastRenderedRotation = new Vector3f();
     private final Vector3f lastRenderedOverlayColor = new Vector3f(1f);
     private final float[] lastRenderedOverlayIntensity = new float[]{0f};
     private BlockState lastRenderedBlockState = Blocks.AIR.defaultBlockState();
@@ -259,15 +259,11 @@ public class VfxEntity extends Entity {
     }
 
     public void inheritPropertiesFrom(VfxEntity other) {
-        lastSnapshot = new VfxSnapshot(
-                new Vector3f(other.lastRenderedTranslation),
-                new Vector3f(other.lastRenderedScale),
-                new Vector3f(other.lastRenderedRotation),
-                new Vector3f(other.lastRenderedOverlayColor),
-                other.lastRenderedOverlayIntensity[0],
-                other.lastRenderedBlockState,
-                other.lastRenderedItemStack.copy()
-        );
+        if (other.currentAnimation != null) {
+            this.lastSnapshot = other.captureSnapshot(other.currentAnimation, other.getAnimationProgress(PartialTickUtil.get()));
+        } else {
+            this.lastSnapshot = other.lastSnapshot;
+        }
         System.out.println(lastSnapshot);
     }
 
@@ -308,16 +304,16 @@ public class VfxEntity extends Entity {
             tickDespawn();
         } else {
             if (!isPaused) {
-                tickAnimations();
+                tickAnimations(PartialTickUtil.get());
             }
         }
     }
 
-    protected void tickAnimations() {
+    protected void tickAnimations(float partialTick) {
         if (currentAnimation == null) return;
         var keyframeCallbacks = currentAnimation.keyframeCallbacks();
         if (keyframeCallbacks != null && !keyframeCallbacks.isEmpty()) {
-            float progress = getAnimationProgress(0f);
+            float progress = getAnimationProgress(partialTick);
 
             while (nextKeyframeCallbackIndex < keyframeCallbacks.size()) {
                 var entry = keyframeCallbacks.get(nextKeyframeCallbackIndex);
