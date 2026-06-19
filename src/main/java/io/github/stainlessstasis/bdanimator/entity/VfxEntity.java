@@ -70,19 +70,16 @@ public class VfxEntity extends Entity {
         this.noPhysics = true;
     }
 
-    public static VfxEntity create(EntityType<? extends Entity> type, Level level) {
-        return new VfxEntity(type, level);
+    public static VfxEntity create(Level level) {
+        return new VfxEntity(BDAnimatorEntities.VFX_ENTITY.get(), level);
     }
 
-    public static VfxEntity createBoundTo(EntityType<? extends Entity> type, Level level, Entity target) {
-        VfxEntity entity = new VfxEntity(type, level);
-        entity.bindTo(target);
-        entity.setPos(target.position());
-        return entity;
+    public static VfxEntity createBoundTo(Level level, Entity target) {
+        return createBoundTo(level, target, new Vector3f(), false);
     }
 
-    public static VfxEntity createBoundTo(EntityType<? extends Entity> type, Level level, Entity target, Vector3f offset, boolean localSpace) {
-        VfxEntity entity = new VfxEntity(type, level);
+    public static VfxEntity createBoundTo(Level level, Entity target, Vector3f offset, boolean localSpace) {
+        VfxEntity entity = create(level);
         entity.bindTo(target, offset, localSpace);
         entity.setPos(target.position());
         return entity;
@@ -156,17 +153,17 @@ public class VfxEntity extends Entity {
 
     private VfxSnapshot captureEndSnapshot(VfxAnimation animation) {
         var prev = this.lastSnapshot;
-        System.out.println("CAPTURE END SNAPSHOT");
-        System.out.println("PREVIOUS: "+prev);
-        System.out.println("Translation: "+ lastRenderedTranslation);
-        System.out.println("Scale: "+ lastRenderedScale);
-        System.out.println("Rotation: "+ animation.rotationChannel().resolveValueAt(
-                1f, animation.inheritRotation() ? prev.rotation() : VfxSnapshot.DEFAULT.rotation()
-        ));
-        System.out.println("Color: "+ lastRenderedOverlayColor);
-        System.out.println("Intensity: "+ lastRenderedOverlayIntensity[0]);
-        System.out.println(lastRenderedBlockState);
-        System.out.println(lastRenderedItemStack);
+//        System.out.println("CAPTURE END SNAPSHOT");
+//        System.out.println("PREVIOUS: "+prev);
+//        System.out.println("Translation: "+ lastRenderedTranslation);
+//        System.out.println("Scale: "+ lastRenderedScale);
+//        System.out.println("Rotation: "+ animation.rotationChannel().resolveValueAt(
+//                1f, animation.inheritRotation() ? prev.rotation() : VfxSnapshot.DEFAULT.rotation()
+//        ));
+//        System.out.println("Color: "+ lastRenderedOverlayColor);
+//        System.out.println("Intensity: "+ lastRenderedOverlayIntensity[0]);
+//        System.out.println(lastRenderedBlockState);
+//        System.out.println(lastRenderedItemStack);
         return new VfxSnapshot(
                 lastRenderedTranslation,
                 lastRenderedScale,
@@ -329,6 +326,8 @@ public class VfxEntity extends Entity {
     }
 
     public @Nullable VfxAnimation getCurrentAnimation() { return currentAnimation; }
+    public int getLoopsCompleted() { return this.loopsCompleted; }
+
     public int getBrightnessOverride() { return brightnessOverride; }
     public void setBrightnessOverride(int brightness) { this.brightnessOverride = brightness; }
 

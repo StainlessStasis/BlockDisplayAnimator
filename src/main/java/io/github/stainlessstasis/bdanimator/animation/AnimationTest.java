@@ -57,7 +57,7 @@ public class AnimationTest {
             float fireTransition = 0.25f + (float)(Math.random() * 0.15f);
             float smokeTransition = 0.5f + (float)(Math.random() * 0.2f);
 
-            VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
+            VfxEntity entity = VfxEntity.create(level);
             entity.setPos(center);
             level.addEntity(entity);
 
@@ -90,7 +90,7 @@ public class AnimationTest {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        VfxEntity entity = VfxEntity.create(level);
         entity.setAffectedByCulling(false);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
         entity.setPos(pos);
@@ -165,7 +165,7 @@ public class AnimationTest {
 
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
 
-        VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        VfxEntity entity = VfxEntity.create(level);
         entity.setPos(pos);
         entity.setAffectedByCulling(false);
         level.addEntity(entity);
@@ -214,7 +214,7 @@ public class AnimationTest {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        VfxEntity entity = VfxEntity.create(level);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(4f));
         entity.setPos(pos);
         level.addEntity(entity);
@@ -261,7 +261,7 @@ public class AnimationTest {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        VfxEntity entity = VfxEntity.create(level);
         Vec3 pos = player.getEyePosition().add(player.getLookAngle().normalize().scale(6f));
         entity.setPos(pos);
         level.addEntity(entity);
@@ -307,7 +307,7 @@ public class AnimationTest {
             double y = py + r * Math.cos(phi);
             double z = pz + r * Math.sin(phi) * Math.sin(theta);
 
-            VfxEntity entity = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
+            VfxEntity entity = VfxEntity.create(level);
             entity.setPos(x, y, z);
             level.addEntity(entity);
 
@@ -414,7 +414,7 @@ public class AnimationTest {
 
         float blocksPerTick = 0.5f;
 
-        VfxEntity bullet = VfxEntity.create(BDAnimatorEntities.VFX_ENTITY.get(), level);
+        VfxEntity bullet = VfxEntity.create(level);
         bullet.setPos(spawnPos);
         bullet.setInfinitePersist(true);
         bullet.setOnTick(e -> {
