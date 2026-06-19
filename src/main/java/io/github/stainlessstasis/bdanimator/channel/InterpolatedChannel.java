@@ -17,8 +17,8 @@ public class InterpolatedChannel<S, T> implements Channel<T> {
 
     public static <S, T> InterpolatedChannel<S, T> holdChannel(S value, InterpolatedChannel.LerpFunction<S, T> lerp) {
         return new InterpolatedChannel<>(
-                List.of(new Keyframe<>(0f, value, Easings.LINEAR.get()),
-                        new Keyframe<>(1f, value, Easings.LINEAR.get())),
+                List.of(new Keyframe<>(0f, value, Easings.LINEAR),
+                        new Keyframe<>(1f, value, Easings.LINEAR)),
                 lerp
         );
     }

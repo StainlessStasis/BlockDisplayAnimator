@@ -13,7 +13,7 @@ public class DiscreteChannel<T> implements Channel<T> {
     }
 
     public static <T> DiscreteChannel<T> holdDiscreteChannel(T value) {
-        return new DiscreteChannel<>(List.of(new Keyframe<>(0f, value, Easings.LINEAR.get())));
+        return new DiscreteChannel<>(List.of(new Keyframe<>(0f, value, Easings.LINEAR)));
     }
 
     public T getLastKeyframeValue() {

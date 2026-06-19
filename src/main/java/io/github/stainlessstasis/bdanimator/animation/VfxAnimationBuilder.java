@@ -21,35 +21,35 @@ import java.util.function.Supplier;
 
 public class VfxAnimationBuilder {
     public static final InterpolatedChannel<Vector3f, Vector3f> DEFAULT_TRANSLATION = new InterpolatedChannel<>(
-            List.of(new Keyframe<>(0f, new Vector3f(0f), Easings.STATIC_LINEAR),
-                    new Keyframe<>(1f, new Vector3f(0f), Easings.STATIC_LINEAR)),
+            List.of(new Keyframe<>(0f, new Vector3f(0f), Easings.LINEAR),
+                    new Keyframe<>(1f, new Vector3f(0f), Easings.LINEAR)),
             Interpolators::lerpVector3f
     );
     public static final InterpolatedChannel<Vector3f, Vector3f> DEFAULT_SCALE = new InterpolatedChannel<>(
-            List.of(new Keyframe<>(0f, new Vector3f(1f), Easings.STATIC_LINEAR),
-                    new Keyframe<>(1f, new Vector3f(1f), Easings.STATIC_LINEAR)),
+            List.of(new Keyframe<>(0f, new Vector3f(1f), Easings.LINEAR),
+                    new Keyframe<>(1f, new Vector3f(1f), Easings.LINEAR)),
             Interpolators::lerpVector3f
     );
     public static final InterpolatedChannel<Vector3f, Quaternionf> DEFAULT_ROTATION = new InterpolatedChannel<>(
-            List.of(new Keyframe<>(0f, new Vector3f(0f), Easings.STATIC_LINEAR),
-                    new Keyframe<>(1f, new Vector3f(0f), Easings.STATIC_LINEAR)),
+            List.of(new Keyframe<>(0f, new Vector3f(0f), Easings.LINEAR),
+                    new Keyframe<>(1f, new Vector3f(0f), Easings.LINEAR)),
             Interpolators::lerpDegrees
     );
     public static final InterpolatedChannel<Vector3f, Vector3f> DEFAULT_OVERLAY_COLOR = new InterpolatedChannel<>(
-            List.of(new Keyframe<>(0f, new Vector3f(1f), Easings.STATIC_LINEAR),
-                    new Keyframe<>(1f, new Vector3f(1f), Easings.STATIC_LINEAR)),
+            List.of(new Keyframe<>(0f, new Vector3f(1f), Easings.LINEAR),
+                    new Keyframe<>(1f, new Vector3f(1f), Easings.LINEAR)),
             Interpolators::lerpVector3f
     );
     public static final InterpolatedChannel<Float, float[]> DEFAULT_OVERLAY_INTENSITY = new InterpolatedChannel<>(
-            List.of(new Keyframe<>(0f, 0f, Easings.STATIC_LINEAR),
-                    new Keyframe<>(1f, 0f, Easings.STATIC_LINEAR)),
+            List.of(new Keyframe<>(0f, 0f, Easings.LINEAR),
+                    new Keyframe<>(1f, 0f, Easings.LINEAR)),
             Interpolators::lerpFloat
     );
     public static final DiscreteChannel<BlockState> DEFAULT_BLOCK_STATE = new DiscreteChannel<>(
-            List.of(new Keyframe<>(0f, Blocks.AIR.defaultBlockState(), Easings.STATIC_LINEAR))
+            List.of(new Keyframe<>(0f, Blocks.AIR.defaultBlockState(), Easings.LINEAR))
     );
     public static final DiscreteChannel<ItemStack> DEFAULT_ITEM_STACK = new DiscreteChannel<>(
-            List.of(new Keyframe<>(0f, ItemStack.EMPTY, Easings.STATIC_LINEAR))
+            List.of(new Keyframe<>(0f, ItemStack.EMPTY, Easings.LINEAR))
     );
 
     public static VfxAnimationBuilder create() {
@@ -321,40 +321,40 @@ public class VfxAnimationBuilder {
         private final Consumer<List<Keyframe<Vector3f>>> channelCreator;
 
         private Vector3fBuilder(Vector3f start, Consumer<List<Keyframe<Vector3f>>> channelCreator) {
-            this.keyframes.add(new Keyframe<>(0f, start, Easings.LINEAR.get()));
+            this.keyframes.add(new Keyframe<>(0f, start, Easings.LINEAR));
             this.channelCreator = channelCreator;
         }
 
-        public Vector3fBuilder addKeyframe(float time, Vector3f value, Supplier<Easing> easing) {
-            keyframes.add(new Keyframe<>(time, value, easing.get()));
+        public Vector3fBuilder addKeyframe(float time, Vector3f value, Easing easing) {
+            keyframes.add(new Keyframe<>(time, value, easing));
             return this;
         }
         public Vector3fBuilder addKeyframe(float time, Vector3f value) {
             return addKeyframe(time, value, Easings.LINEAR);
         }
 
-        public Vector3fBuilder addKeyframe(float time, Vec3 value, Supplier<Easing> easing) {
+        public Vector3fBuilder addKeyframe(float time, Vec3 value, Easing easing) {
             return addKeyframe(time, toVector3f(value), easing);
         }
         public Vector3fBuilder addKeyframe(float time, Vec3 value) {
             return addKeyframe(time, toVector3f(value), Easings.LINEAR);
         }
 
-        public Vector3fBuilder addKeyframe(float time, float x, float y, float z, Supplier<Easing> easing) {
+        public Vector3fBuilder addKeyframe(float time, float x, float y, float z, Easing easing) {
             return addKeyframe(time, toVector3f(x, y, z), easing);
         }
         public Vector3fBuilder addKeyframe(float time, float x, float y, float z) {
             return addKeyframe(time, toVector3f(x, y, z), Easings.LINEAR);
         }
 
-        public Vector3fBuilder addKeyframe(float time, float uniformValue, Supplier<Easing> easing) {
+        public Vector3fBuilder addKeyframe(float time, float uniformValue, Easing easing) {
             return addKeyframe(time, new Vector3f(uniformValue), easing);
         }
         public Vector3fBuilder addKeyframe(float time, float uniformValue) {
             return addKeyframe(time, new Vector3f(uniformValue), Easings.LINEAR);
         }
 
-        public Vector3fBuilder addRandomKeyframe(float time, Vector3f min, Vector3f max, Supplier<Easing> easing) {
+        public Vector3fBuilder addRandomKeyframe(float time, Vector3f min, Vector3f max, Easing easing) {
             return addKeyframe(time,
                     min.x + (float)(Math.random() * (max.x - min.x)),
                     min.y + (float)(Math.random() * (max.y - min.y)),
@@ -366,7 +366,7 @@ public class VfxAnimationBuilder {
             return addRandomKeyframe(time, min, max, Easings.LINEAR);
         }
 
-        public Vector3fBuilder addRandomKeyframe(float time, float min, float max, Supplier<Easing> easing) {
+        public Vector3fBuilder addRandomKeyframe(float time, float min, float max, Easing easing) {
             float val = min + (float)(Math.random() * (max - min));
             return addKeyframe(time, new Vector3f(val), easing);
         }
@@ -374,7 +374,7 @@ public class VfxAnimationBuilder {
             return addRandomKeyframe(time, min, max, Easings.LINEAR);
         }
 
-        public Vector3fBuilder addRandomKeyframe(float time, float minX, float maxX, float minY, float maxY, float minZ, float maxZ, Supplier<Easing> easing) {
+        public Vector3fBuilder addRandomKeyframe(float time, float minX, float maxX, float minY, float maxY, float minZ, float maxZ, Easing easing) {
             return addKeyframe(time, new Vector3f(
                     minX + (float)(Math.random() * (maxX - minX)),
                     minY + (float)(Math.random() * (maxY - minY)),
@@ -385,7 +385,7 @@ public class VfxAnimationBuilder {
             return addRandomKeyframe(time, minX, maxX, minY, maxY, minZ, maxZ, Easings.LINEAR);
         }
 
-        public Vector3fBuilder addRandomDeltaKeyframe(float time, float deltaMin, float deltaMax, Supplier<Easing> easing) {
+        public Vector3fBuilder addRandomDeltaKeyframe(float time, float deltaMin, float deltaMax, Easing easing) {
             Vector3f base = keyframes.getLast().value();
             return addKeyframe(time, new Vector3f(
                     base.x + randomBetween(deltaMin, deltaMax),
@@ -402,8 +402,8 @@ public class VfxAnimationBuilder {
             return this;
         }
 
-        private void end(Vector3f value, Supplier<Easing> easing) {
-            keyframes.add(new Keyframe<>(1f, value, easing.get()));
+        private void end(Vector3f value, Easing easing) {
+            keyframes.add(new Keyframe<>(1f, value, easing));
             channelCreator.accept(keyframes);
         }
 
@@ -417,33 +417,33 @@ public class VfxAnimationBuilder {
         private final List<Keyframe<Float>> intensityKeyframes = new ArrayList<>();
 
         private OverlayBuilder(Vector3f startColor, float startIntensity) {
-            colorKeyframes.add(new Keyframe<>(0f, startColor, Easings.LINEAR.get()));
-            intensityKeyframes.add(new Keyframe<>(0f, startIntensity, Easings.LINEAR.get()));
+            colorKeyframes.add(new Keyframe<>(0f, startColor, Easings.LINEAR));
+            intensityKeyframes.add(new Keyframe<>(0f, startIntensity, Easings.LINEAR));
         }
 
-        public OverlayBuilder addColorKeyframe(float time, Vector3f color, Supplier<Easing> easing) {
-            colorKeyframes.add(new Keyframe<>(time, color, easing.get()));
+        public OverlayBuilder addColorKeyframe(float time, Vector3f color, Easing easing) {
+            colorKeyframes.add(new Keyframe<>(time, color, easing));
             return this;
         }
         public OverlayBuilder addColorKeyframe(float time, Vector3f color) {
             return addColorKeyframe(time, color, Easings.LINEAR);
         }
 
-        public OverlayBuilder addColorKeyframe(float time, Vec3 color, Supplier<Easing> easing) {
+        public OverlayBuilder addColorKeyframe(float time, Vec3 color, Easing easing) {
             return addColorKeyframe(time, toVector3f(color), easing);
         }
         public OverlayBuilder addColorKeyframe(float time, Vec3 color) {
             return addColorKeyframe(time, toVector3f(color), Easings.LINEAR);
         }
 
-        public OverlayBuilder addColorKeyframe(float time, float r, float g, float b, Supplier<Easing> easing) {
+        public OverlayBuilder addColorKeyframe(float time, float r, float g, float b, Easing easing) {
             return addColorKeyframe(time, toVector3f(r, g, b), easing);
         }
         public OverlayBuilder addColorKeyframe(float time, float r, float g, float b) {
             return addColorKeyframe(time, toVector3f(r, g, b), Easings.LINEAR);
         }
 
-        public OverlayBuilder addColorKeyframe(float time, float uniformColor, Supplier<Easing> easing) {
+        public OverlayBuilder addColorKeyframe(float time, float uniformColor, Easing easing) {
             return addColorKeyframe(time, new Vector3f(uniformColor), easing);
         }
         public OverlayBuilder addColorKeyframe(float time, float uniformColor) {
@@ -455,8 +455,8 @@ public class VfxAnimationBuilder {
             return this;
         }
 
-        public OverlayBuilder addIntensityKeyframe(float time, float intensity, Supplier<Easing> easing) {
-            intensityKeyframes.add(new Keyframe<>(time, intensity, easing.get()));
+        public OverlayBuilder addIntensityKeyframe(float time, float intensity, Easing easing) {
+            intensityKeyframes.add(new Keyframe<>(time, intensity, easing));
             return this;
         }
         public OverlayBuilder addIntensityKeyframe(float time, float intensity) {
@@ -468,7 +468,7 @@ public class VfxAnimationBuilder {
             return this;
         }
 
-        public OverlayBuilder addRandomColorKeyframe(float time, Vector3f min, Vector3f max, Supplier<Easing> easing) {
+        public OverlayBuilder addRandomColorKeyframe(float time, Vector3f min, Vector3f max, Easing easing) {
             return addColorKeyframe(time, new Vector3f(
                     VfxAnimationBuilder.randomBetween(min.x, max.x),
                     VfxAnimationBuilder.randomBetween(min.y, max.y),
@@ -479,7 +479,7 @@ public class VfxAnimationBuilder {
             return addRandomColorKeyframe(time, min, max, Easings.LINEAR);
         }
 
-        public OverlayBuilder addRandomIntensityKeyframe(float time, float min, float max, Supplier<Easing> easing) {
+        public OverlayBuilder addRandomIntensityKeyframe(float time, float min, float max, Easing easing) {
             return addIntensityKeyframe(time, VfxAnimationBuilder.randomBetween(min, max), easing);
         }
         public OverlayBuilder addRandomIntensityKeyframe(float time, float min, float max) {
@@ -487,8 +487,8 @@ public class VfxAnimationBuilder {
         }
 
         private void end() {
-            colorKeyframes.add(new Keyframe<>(1f, colorKeyframes.getLast().value(), Easings.LINEAR.get()));
-            intensityKeyframes.add(new Keyframe<>(1f, intensityKeyframes.getLast().value(), Easings.LINEAR.get()));
+            colorKeyframes.add(new Keyframe<>(1f, colorKeyframes.getLast().value(), Easings.LINEAR));
+            intensityKeyframes.add(new Keyframe<>(1f, intensityKeyframes.getLast().value(), Easings.LINEAR));
             overlayColorChannel = new InterpolatedChannel<>(colorKeyframes, Interpolators::lerpVector3f);
             overlayIntensityChannel = new InterpolatedChannel<>(intensityKeyframes, Interpolators::lerpFloat);
         }
@@ -498,7 +498,7 @@ public class VfxAnimationBuilder {
         protected final List<Keyframe<T>> keyframes = new ArrayList<>();
 
         private DiscreteBuilder(T initial) {
-            keyframes.add(new Keyframe<>(0f, initial, Easings.LINEAR.get()));
+            keyframes.add(new Keyframe<>(0f, initial, Easings.LINEAR));
         }
 
         @SuppressWarnings("unchecked")
@@ -507,7 +507,7 @@ public class VfxAnimationBuilder {
         }
 
         public B addKeyframe(float time, T state) {
-            keyframes.add(new Keyframe<>(time, state, Easings.LINEAR.get()));
+            keyframes.add(new Keyframe<>(time, state, Easings.LINEAR));
             return self();
         }
 
@@ -521,7 +521,7 @@ public class VfxAnimationBuilder {
         }
 
         void end() {
-            keyframes.add(new Keyframe<>(1f, keyframes.getLast().value(), Easings.LINEAR.get()));
+            keyframes.add(new Keyframe<>(1f, keyframes.getLast().value(), Easings.LINEAR));
         }
     }
 

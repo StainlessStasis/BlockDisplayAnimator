@@ -71,7 +71,7 @@ public class VfxDemos {
     public static void demoKeyframesAndEasings(ClientLevel level, LocalPlayer player) {
         Vec3 pos = getFrontPosition(player);
         float spacing = 3f;
-        List<Supplier<Easing>> easings = List.of(Easings.LINEAR, Easings.EASE_OUT_BOUNCE, Easings.EASE_IN_OUT_ELASTIC, Easings.EASE_OUT_EXPO);
+        List<Easing> easings = List.of(Easings.LINEAR, Easings.EASE_OUT_BOUNCE, Easings.EASE_IN_OUT_ELASTIC, Easings.EASE_OUT_EXPO);
         BlockState[] blocks = { Blocks.RED_CONCRETE.defaultBlockState(), Blocks.YELLOW_CONCRETE.defaultBlockState(), Blocks.LIME_CONCRETE.defaultBlockState(), Blocks.CYAN_CONCRETE.defaultBlockState() };
 
         for (int i = 0; i < easings.size(); i++) {

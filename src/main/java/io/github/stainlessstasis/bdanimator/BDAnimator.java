@@ -22,7 +22,6 @@ public class BDAnimator {
     public BDAnimator(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
         BDAnimatorEntities.register(modEventBus);
-        Easings.EASINGS.register(modEventBus);
 //        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
