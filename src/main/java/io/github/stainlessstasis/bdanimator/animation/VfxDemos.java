@@ -281,6 +281,7 @@ public class VfxDemos {
 
                     VfxEntity impact = VfxEntity.create(level, impactPos);
                     level.addEntity(impact);
+                    impact.inheritPropertiesFrom(vfxEntity);
                     impact.playAnimation(VfxAnimationBuilder.create()
                             .blockState(Blocks.PACKED_ICE.defaultBlockState(), builder -> {})
                             .overlay(1f, 1f, 1f, 0f, builder -> builder

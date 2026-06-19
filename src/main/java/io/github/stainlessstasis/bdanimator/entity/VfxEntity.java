@@ -34,6 +34,7 @@ public class VfxEntity extends Entity {
     private VfxSnapshot lastSnapshot = VfxSnapshot.DEFAULT;
     private final Vector3f lastRenderedTranslation = new Vector3f();
     private final Vector3f lastRenderedScale = new Vector3f(1f);
+    private final Vector3f lastRenderedRotation = new Vector3f();
     private final Vector3f lastRenderedOverlayColor = new Vector3f(1f);
     private final float[] lastRenderedOverlayIntensity = new float[]{0f};
     private BlockState lastRenderedBlockState = Blocks.AIR.defaultBlockState();
@@ -166,7 +167,7 @@ public class VfxEntity extends Entity {
         if (currentAnimation.onEnd() != null) {
             currentAnimation.onEnd().accept(this);
         }
-        lastSnapshot = captureEndSnapshot(currentAnimation);
+        lastSnapshot = captureSnapshot(currentAnimation, 1f);
         currentAnimation = null;
         loopsCompleted = 0;
         isPaused = false;
@@ -233,24 +234,22 @@ public class VfxEntity extends Entity {
         animationQueue.clear();
     }
 
-    private VfxSnapshot captureEndSnapshot(VfxAnimation animation) {
+    private VfxSnapshot captureSnapshot() {
+        return captureSnapshot(lastProgress);
+    }
+
+    private VfxSnapshot captureSnapshot(float t) {
+        if (currentAnimation == null) return VfxSnapshot.DEFAULT;
+        return captureSnapshot(currentAnimation, t);
+    }
+
+    private VfxSnapshot captureSnapshot(VfxAnimation animation, float t) {
         var prev = this.lastSnapshot;
-//        System.out.println("CAPTURE END SNAPSHOT");
-//        System.out.println("PREVIOUS: "+prev);
-//        System.out.println("Translation: "+ lastRenderedTranslation);
-//        System.out.println("Scale: "+ lastRenderedScale);
-//        System.out.println("Rotation: "+ animation.rotationChannel().resolveValueAt(
-//                1f, animation.inheritRotation() ? prev.rotation() : VfxSnapshot.DEFAULT.rotation()
-//        ));
-//        System.out.println("Color: "+ lastRenderedOverlayColor);
-//        System.out.println("Intensity: "+ lastRenderedOverlayIntensity[0]);
-//        System.out.println(lastRenderedBlockState);
-//        System.out.println(lastRenderedItemStack);
         return new VfxSnapshot(
                 lastRenderedTranslation,
                 lastRenderedScale,
                 animation.rotationChannel().resolveValueAt(
-                        1f, animation.inheritRotation() ? prev.rotation() : VfxSnapshot.DEFAULT.rotation()
+                        t, animation.inheritRotation() ? prev.rotation() : VfxSnapshot.DEFAULT.rotation()
                 ),
                 lastRenderedOverlayColor,
                 lastRenderedOverlayIntensity[0],
@@ -259,8 +258,22 @@ public class VfxEntity extends Entity {
         );
     }
 
+    public void inheritPropertiesFrom(VfxEntity other) {
+        lastSnapshot = new VfxSnapshot(
+                new Vector3f(other.lastRenderedTranslation),
+                new Vector3f(other.lastRenderedScale),
+                new Vector3f(other.lastRenderedRotation),
+                new Vector3f(other.lastRenderedOverlayColor),
+                other.lastRenderedOverlayIntensity[0],
+                other.lastRenderedBlockState,
+                other.lastRenderedItemStack.copy()
+        );
+        System.out.println(lastSnapshot);
+    }
+
     protected void updateRenderedTranslation(Vector3f value) { this.lastRenderedTranslation.set(value); }
     protected void updateRenderedScale(Vector3f value) { this.lastRenderedScale.set(value); }
+    protected void updateRenderedRotation(Vector3f eulerDegrees) { this.lastRenderedRotation.set(eulerDegrees); }
     protected void updateRenderedOverlayColor(Vector3f value) { this.lastRenderedOverlayColor.set(value); }
     protected void updateRenderedOverlayIntensity(float value) { this.lastRenderedOverlayIntensity[0] = value; }
     protected void updateBlockModel(BlockState currentState, BlockModelResolver resolver) {
@@ -321,7 +334,7 @@ public class VfxEntity extends Entity {
         boolean reverseComplete = playSpeed < 0 && lastProgress <= 0f;
         if (reverseComplete && reverseStopsAtStart) {
             if (currentAnimation.onEnd() != null) currentAnimation.onEnd().accept(this);
-            lastSnapshot = captureEndSnapshot(currentAnimation);
+            lastSnapshot = captureSnapshot(currentAnimation, 1f);
             currentAnimation = null;
             loopsCompleted = 0;
             tickDespawn();
@@ -341,7 +354,7 @@ public class VfxEntity extends Entity {
                 if (currentAnimation.onEnd() != null) {
                     currentAnimation.onEnd().accept(this);
                 }
-                lastSnapshot = captureEndSnapshot(currentAnimation);
+                lastSnapshot = captureSnapshot(currentAnimation, 1f);
                 currentAnimation = null;
                 loopsCompleted = 0;
 

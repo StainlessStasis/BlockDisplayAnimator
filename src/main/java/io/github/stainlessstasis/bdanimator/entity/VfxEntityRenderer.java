@@ -18,6 +18,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 
 public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRenderState> {
@@ -63,7 +64,10 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
         if (anim.rotationModifier() != null) {
             anim.rotationModifier().apply(state.rotation, context);
         }
-        // rotation uses resolveValueAt instead of storing in a field
+        Vector3f eulerDegrees = new Vector3f();
+        state.rotation.getEulerAnglesYXZ(eulerDegrees);
+        eulerDegrees.mul((float)(180f / Math.PI));
+        entity.updateRenderedRotation(eulerDegrees);
 
         anim.overlayColorChannel().evaluate(t, state.overlayColor, anim.inheritOverlayColor() ? snapshot.overlayColor() : null);
         if (anim.overlayColorModifier() != null) {
