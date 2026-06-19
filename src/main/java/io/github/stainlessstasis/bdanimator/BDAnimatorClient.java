@@ -1,13 +1,16 @@
 package io.github.stainlessstasis.bdanimator;
 
 import com.mojang.brigadier.arguments.FloatArgumentType;
-import io.github.stainlessstasis.bdanimator.animation.AnimationTest;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import io.github.stainlessstasis.bdanimator.animation.VfxDemos;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import io.github.stainlessstasis.bdanimator.entity.BDAnimatorEntities;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntityRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +25,7 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import org.lwjgl.glfw.GLFW;
 
+import java.awt.*;
 import java.util.List;
 
 @Mod(value = BDAnimator.MODID, dist = Dist.CLIENT)
@@ -93,6 +97,27 @@ public class BDAnimatorClient {
                                         })
                                 )
                         )
+                        .then(Commands.literal("demo")
+                                .then(Commands.argument("name", StringArgumentType.word())
+                                        .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(VfxDemos.getDemoNames(), builder))
+                                        .executes(ctx -> {
+                                            ClientLevel level = Minecraft.getInstance().level;
+                                            LocalPlayer player = Minecraft.getInstance().player;
+                                            if (level == null || player == null) return 0;
+
+                                            String demoName = StringArgumentType.getString(ctx, "name");
+                                            boolean success = VfxDemos.playDemo(demoName, level, player);
+
+                                            if (success) {
+                                                player.sendSystemMessage(Component.literal("Playing demo: " + demoName));
+                                                return 1;
+                                            } else {
+                                                player.sendSystemMessage(Component.literal("Unknown demo: " + demoName).withColor(Color.RED.getRGB()));
+                                                return 0;
+                                            }
+                                        })
+                                )
+                        )
         );
     }
 
@@ -110,7 +135,9 @@ public class BDAnimatorClient {
     static void onKeyInput(InputEvent.Key event) {
         if (event.getAction() != GLFW.GLFW_PRESS) return;
         if (event.getKey() == GLFW.GLFW_KEY_LEFT_ALT) {
-            AnimationTest.runItemEncasementTest();
+            if (Minecraft.getInstance().level instanceof ClientLevel level && Minecraft.getInstance().player instanceof LocalPlayer player) {
+                VfxDemos.demoKeyframesAndEasings(level, player);
+            }
         }
     }
 }

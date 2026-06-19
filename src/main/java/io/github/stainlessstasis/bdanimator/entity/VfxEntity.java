@@ -53,6 +53,7 @@ public class VfxEntity extends Entity {
     private boolean reverseStopsAtStart = true;
     private @Nullable Consumer<VfxEntity> onTick;
     private @Nullable Consumer<VfxEntity> onRemoval;
+    private @Nullable Consumer<VfxEntity> onBoundEntityRemoved;
     private int nextKeyframeCallbackIndex = 0;
 
     private int brightnessOverride = -1;
@@ -406,6 +407,14 @@ public class VfxEntity extends Entity {
             return;
         }
 
+        if (!boundEntity.isAlive()) {
+            if (onBoundEntityRemoved != null) {
+                onBoundEntityRemoved.accept(this);
+            }
+            boundEntity = null;
+            return;
+        }
+
         Vec3 pos = boundEntity.position();
         if (bindLocalSpace) {
             Vec3 rotatedOffset = new Vec3(bindOffset.x, bindOffset.y, bindOffset.z)
@@ -435,6 +444,7 @@ public class VfxEntity extends Entity {
 
     public void setOnTick(Consumer<VfxEntity> onTick) { this.onTick = onTick; }
     public void setOnRemoval(Consumer<VfxEntity> onRemoval) { this.onRemoval = onRemoval; }
+    public void setOnBoundEntityRemoved(Consumer<VfxEntity> onBoundEntityRemoved) { this.onBoundEntityRemoved = onBoundEntityRemoved; }
 
     public int getTicksToPersist() { return this.ticksToPersist; }
     public void setTicksToPersist(int ticks) { this.ticksToPersist = ticks; }
