@@ -10,6 +10,7 @@ import static io.github.stainlessstasis.bdanimator.easing.EasingConstants.*;
  * Easings are functions which can drastically affect the way an animation looks, giving it a different feeling.<br>
  * All easings from <a href="https://easings.net/">easings.net</a> are built in, but you
  * can also call {@link #register(String, Easing.EasingFunction)} to register your own easing function.
+ * This isn't required, but it will make your easing accessible via map lookup, if you want to get a random easing, for example.
  *
  * <p>Each easing (except linear) has 3 types:
  *  <ul>

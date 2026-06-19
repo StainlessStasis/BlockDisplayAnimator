@@ -21,6 +21,9 @@ import org.joml.Vector3f;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static io.github.stainlessstasis.bdanimator.util.FXMathUtils.randomBetween;
+import static io.github.stainlessstasis.bdanimator.util.FXMathUtils.randomOf;
+
 public class NovaBombDemo {
     private static final long[] SONIC_CHARGE_SEEDS = new long[]{758150237086332386L, 1026614418597737318L};
 
@@ -386,18 +389,5 @@ public class NovaBombDemo {
                 }
             }
         });
-    }
-
-    private static float randomBetween(float min, float max) {
-        return VfxAnimationBuilder.randomBetween(min, max);
-    }
-
-    private static int randomBetween(int min, int max) {
-        return VfxAnimationBuilder.randomBetween(min, max);
-    }
-
-    @SafeVarargs
-    private static <T> T randomOf(T... options) {
-        return VfxAnimationBuilder.randomOf(options);
     }
 }

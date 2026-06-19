@@ -8,6 +8,7 @@ import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import io.github.stainlessstasis.bdanimator.task.CancellableRunnable;
 import io.github.stainlessstasis.bdanimator.task.ClientTaskScheduler;
+import io.github.stainlessstasis.bdanimator.util.FXMathUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -325,18 +326,18 @@ public class VfxDemos {
             float dirX = (float) Math.cos(angle);
             float dirZ = (float) Math.sin(angle);
 
-            BlockState[] sequence = VfxAnimationBuilder.randomOf(colorSequences);
+            BlockState[] sequence = FXMathUtils.randomOf(colorSequences);
 
             float radius = 10f;
-            float startScale = VfxAnimationBuilder.randomBetween(2f, 2.75f);
-            float endScale = VfxAnimationBuilder.randomBetween(0.5f, 0.75f);
-            float fireTransition = VfxAnimationBuilder.randomBetween(0.25f, 0.4f);
-            float smokeTransition = VfxAnimationBuilder.randomBetween(0.5f, 0.7f);
+            float startScale = FXMathUtils.randomBetween(2f, 2.75f);
+            float endScale = FXMathUtils.randomBetween(0.5f, 0.75f);
+            float fireTransition = FXMathUtils.randomBetween(0.25f, 0.4f);
+            float smokeTransition = FXMathUtils.randomBetween(0.5f, 0.7f);
 
             Vector3f startRotation = new Vector3f(
-                    VfxAnimationBuilder.randomBetween(0f, 360f),
-                    VfxAnimationBuilder.randomBetween(0f, 360f),
-                    VfxAnimationBuilder.randomBetween(0f, 360f)
+                    FXMathUtils.randomBetween(0f, 360f),
+                    FXMathUtils.randomBetween(0f, 360f),
+                    FXMathUtils.randomBetween(0f, 360f)
             );
 
             VfxEntity entity = VfxEntity.create(level, center);
@@ -359,7 +360,7 @@ public class VfxDemos {
                             .addIntensityKeyframe(smokeTransition, 0.2f, Easings.EASE_IN_QUAD)
                             .addColorKeyframe(1f, new Vector3f(0.05f, 0.05f, 0.05f))
                             .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
-                    .build(baseDuration + (int) VfxAnimationBuilder.randomBetween(0f, 10f));
+                    .build(baseDuration + (int) FXMathUtils.randomBetween(0f, 10f));
 
             entity.playAnimation(anim);
         }
@@ -391,7 +392,7 @@ public class VfxDemos {
             VfxEntity entity = VfxEntity.create(level, new Vec3(x, y, z));
             level.addEntity(entity);
 
-            int duration = 1800 + (int) VfxAnimationBuilder.randomBetween(0f, 900f);
+            int duration = 1800 + (int) FXMathUtils.randomBetween(0f, 900f);
             VfxAnimation anim = VfxAnimationBuilder.create()
                     .blockState(blocks[i % blocks.length], b -> {})
                     .translation(0, 0, 0, t -> t
@@ -434,22 +435,22 @@ public class VfxDemos {
             entity.setPos(x, y, z);
             entity.setBlockState(blocks[i % blocks.length]);
 
-            int duration = 1800 + (int) VfxAnimationBuilder.randomBetween(0f, 900f);
+            int duration = 1800 + (int) FXMathUtils.randomBetween(0f, 900f);
 
             Vector3f endTranslation = new Vector3f(
-                    VfxAnimationBuilder.randomBetween(-2f, 2f),
-                    VfxAnimationBuilder.randomBetween(0f, 4f),
-                    VfxAnimationBuilder.randomBetween(-2f, 2f)
+                    FXMathUtils.randomBetween(-2f, 2f),
+                    FXMathUtils.randomBetween(0f, 4f),
+                    FXMathUtils.randomBetween(-2f, 2f)
             );
             Vector3f endScale = new Vector3f(
-                    VfxAnimationBuilder.randomBetween(0.5f, 2f),
-                    VfxAnimationBuilder.randomBetween(0.5f, 2f),
-                    VfxAnimationBuilder.randomBetween(0.5f, 2f)
+                    FXMathUtils.randomBetween(0.5f, 2f),
+                    FXMathUtils.randomBetween(0.5f, 2f),
+                    FXMathUtils.randomBetween(0.5f, 2f)
             );
             Quaternionf endRotation = new Quaternionf().rotationXYZ(
-                    (float) Math.toRadians(VfxAnimationBuilder.randomBetween(0f, 720f)),
-                    (float) Math.toRadians(VfxAnimationBuilder.randomBetween(0f, 720f)),
-                    (float) Math.toRadians(VfxAnimationBuilder.randomBetween(0f, 720f))
+                    (float) Math.toRadians(FXMathUtils.randomBetween(0f, 720f)),
+                    (float) Math.toRadians(FXMathUtils.randomBetween(0f, 720f)),
+                    (float) Math.toRadians(FXMathUtils.randomBetween(0f, 720f))
             );
 
             entity.setTransformation(new Transformation(

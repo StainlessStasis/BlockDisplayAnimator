@@ -7,6 +7,7 @@ import io.github.stainlessstasis.bdanimator.channel.InterpolatedChannel;
 import io.github.stainlessstasis.bdanimator.easing.Easing;
 import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
+import io.github.stainlessstasis.bdanimator.util.FXMathUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,7 +18,6 @@ import org.joml.Vector3f;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class VfxAnimationBuilder {
     public static final InterpolatedChannel<Vector3f, Vector3f> DEFAULT_TRANSLATION = new InterpolatedChannel<>(
@@ -94,19 +94,6 @@ public class VfxAnimationBuilder {
     private @Nullable Consumer<VfxEntity> onLoop;
     private int loopCount = 0;
     private final Map<Float, Consumer<VfxEntity>> keyframeCallbacks = new LinkedHashMap<>();
-
-    public static float randomBetween(float min, float max) {
-        return min + (float)(Math.random() * (max - min));
-    }
-
-    public static int randomBetween(int min, int max) {
-        return min + (int)(Math.random() * (max - min));
-    }
-
-    @SafeVarargs
-    public static <T> T randomOf(T... options) {
-        return options[(int) (Math.random() * options.length)];
-    }
 
     public VfxAnimationBuilder onStart(Consumer<VfxEntity> callback) {
         this.onStart = callback;
@@ -388,9 +375,9 @@ public class VfxAnimationBuilder {
         public Vector3fBuilder addRandomDeltaKeyframe(float time, float deltaMin, float deltaMax, Easing easing) {
             Vector3f base = keyframes.getLast().value();
             return addKeyframe(time, new Vector3f(
-                    base.x + randomBetween(deltaMin, deltaMax),
-                    base.y + randomBetween(deltaMin, deltaMax),
-                    base.z + randomBetween(deltaMin, deltaMax)
+                    base.x + FXMathUtils.randomBetween(deltaMin, deltaMax),
+                    base.y + FXMathUtils.randomBetween(deltaMin, deltaMax),
+                    base.z + FXMathUtils.randomBetween(deltaMin, deltaMax)
             ), easing);
         }
         public Vector3fBuilder addRandomDeltaKeyframe(float time, float deltaMin, float deltaMax) {
@@ -470,9 +457,9 @@ public class VfxAnimationBuilder {
 
         public OverlayBuilder addRandomColorKeyframe(float time, Vector3f min, Vector3f max, Easing easing) {
             return addColorKeyframe(time, new Vector3f(
-                    VfxAnimationBuilder.randomBetween(min.x, max.x),
-                    VfxAnimationBuilder.randomBetween(min.y, max.y),
-                    VfxAnimationBuilder.randomBetween(min.z, max.z)
+                    FXMathUtils.randomBetween(min.x, max.x),
+                    FXMathUtils.randomBetween(min.y, max.y),
+                    FXMathUtils.randomBetween(min.z, max.z)
             ), easing);
         }
         public OverlayBuilder addRandomColorKeyframe(float time, Vector3f min, Vector3f max) {
@@ -480,7 +467,7 @@ public class VfxAnimationBuilder {
         }
 
         public OverlayBuilder addRandomIntensityKeyframe(float time, float min, float max, Easing easing) {
-            return addIntensityKeyframe(time, VfxAnimationBuilder.randomBetween(min, max), easing);
+            return addIntensityKeyframe(time, FXMathUtils.randomBetween(min, max), easing);
         }
         public OverlayBuilder addRandomIntensityKeyframe(float time, float min, float max) {
             return addRandomIntensityKeyframe(time, min, max, Easings.LINEAR);
@@ -512,7 +499,7 @@ public class VfxAnimationBuilder {
         }
 
         public final B addRandomKeyframe(float time, T... options) {
-            return addKeyframe(time, VfxAnimationBuilder.randomOf(options));
+            return addKeyframe(time, FXMathUtils.randomOf(options));
         }
 
         public B holdKeyframe(float time) {
