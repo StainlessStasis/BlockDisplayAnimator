@@ -14,7 +14,7 @@ Every easing function from [easings.net](https://easings.net/) is built in, and 
 <img width="1080" height="608" alt="keyframes_and_easings" src="https://github.com/user-attachments/assets/b9df9f06-3092-47c2-955e-5bbe10c2a41f"/>
 
 ### Overlays
-Tint any block (including weird shapes like lecterns) any color. Intensity controls how opaque the tint is, and overlays support keyframes just like every other property.
+Tint any block (including weird shapes like lecterns) any color. Intensity controls how opaque the tint is, and overlays support keyframes just like every other property.<br><br>
 *Note: Does not support items.*
 <img width="1080" height="608" alt="overlay" src="https://github.com/user-attachments/assets/11c5b6d9-0930-4702-b50a-a44834ecd323" />
 
@@ -32,7 +32,7 @@ Apply custom per-tick modifiers on top of the keyframed values, for effects like
 <img width="1080" height="608" alt="per_tick_modifiers" src="https://github.com/user-attachments/assets/e05c1e3b-d92d-4bc9-b318-994a9e74ca42" />
 
 ### Entity Binding
-Bind animations to follow entities with an optional offset. Can operate in either global or local space.
+Bind animations to follow entities with an optional offset. Can operate in either global or local space.<br><br>
 *Showcased in above Nova Bomb video.*
 
 ### Builder API
