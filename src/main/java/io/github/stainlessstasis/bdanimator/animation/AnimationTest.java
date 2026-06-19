@@ -1,9 +1,7 @@
 package io.github.stainlessstasis.bdanimator.animation;
 
 import com.mojang.math.Transformation;
-import io.github.stainlessstasis.bdanimator.easing.Easing;
 import io.github.stainlessstasis.bdanimator.easing.Easings;
-import io.github.stainlessstasis.bdanimator.entity.BDAnimatorEntities;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

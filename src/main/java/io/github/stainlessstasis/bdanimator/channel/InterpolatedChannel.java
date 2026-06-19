@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.bdanimator.channel;
 
+import io.github.stainlessstasis.bdanimator.easing.Easings;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 
@@ -14,12 +15,31 @@ public class InterpolatedChannel<S, T> implements Channel<T> {
         this.lerpFunc = lerpFunc;
     }
 
+    public static <S, T> InterpolatedChannel<S, T> holdChannel(S value, InterpolatedChannel.LerpFunction<S, T> lerp) {
+        return new InterpolatedChannel<>(
+                List.of(new Keyframe<>(0f, value, Easings.LINEAR.get()),
+                        new Keyframe<>(1f, value, Easings.LINEAR.get())),
+                lerp
+        );
+    }
+
     @Override
     public T evaluate(float t, T destination) {
         return evaluate(t, destination, null);
     }
 
     public T evaluate(float t, T destination, @Nullable S fallbackStartValue) {
+        var values = getValues(t, fallbackStartValue);
+        this.lerpFunc.lerp(values.start(), values.end(), values.easedT(), destination);
+        return destination;
+    }
+
+    public S resolveValueAt(float t, @Nullable S fallbackStartValue, SelfLerpFunction<S> lerpFunc) {
+        var values = getValues(t, fallbackStartValue);
+        return lerpFunc.lerp(values.start(), values.end(), values.easedT());
+    }
+
+    private Values<S> getValues(float t, @Nullable S fallbackStartValue) {
         Keyframe<S> prev = keyframes.getFirst();
         Keyframe<S> next = keyframes.getLast();
 
@@ -36,29 +56,18 @@ public class InterpolatedChannel<S, T> implements Channel<T> {
 
         S startVal = (prev == keyframes.getFirst() && fallbackStartValue != null) ? fallbackStartValue : prev.value();
         S endVal = (next == keyframes.get(1) && keyframes.size() == 2 && fallbackStartValue != null) ? fallbackStartValue : next.value();
-
-        lerpFunc.lerp(startVal, endVal, easedT, destination);
-        return destination;
+        return new Values<>(startVal, endVal, easedT);
     }
 
-    public S resolveValueAt(float t, @Nullable S fallbackStartValue) {
-        Keyframe<S> next = keyframes.getLast();
-        for (int i = 0; i < keyframes.size() - 1; i++) {
-            if (t <= keyframes.get(i + 1).time()) {
-                next = keyframes.get(i + 1);
-                break;
-            }
-        }
-        boolean endIsFallback = (next == keyframes.get(1) && keyframes.size() == 2 && fallbackStartValue != null);
-        return endIsFallback ? fallbackStartValue : next.value();
-    }
-
-    public S getLastKeyframeValue() {
-        return keyframes.getLast().value();
-    }
+    private record Values<S>(S start, S end, float easedT) {}
 
     @FunctionalInterface
     public interface LerpFunction<S, T> {
         void lerp(S start, S end, float t, T destination);
+    }
+
+    @FunctionalInterface
+    public interface SelfLerpFunction<S> {
+        S lerp(S start, S end, float t);
     }
 }

@@ -161,7 +161,7 @@ public class VfxDemos {
                 .scale(1f, builder -> {})
                 .translation(0, 5, 0, builder -> builder
                         .addKeyframe(1f, 0, 0, 0, Easings.EASE_IN_QUART))
-                .onStart(e -> level.playLocalSound(pos.x, pos.y, pos.z,
+                .onStart(vfxEntity -> level.playLocalSound(pos.x, pos.y, pos.z,
                         SoundEvents.ANVIL_FALL, SoundSource.AMBIENT, 1f, 0.8f, false))
                 .build(20);
 
@@ -172,7 +172,7 @@ public class VfxDemos {
                 .scale(1f, builder -> builder
                         .addKeyframe(0.3f, 2f, 0.2f, 2f, Easings.EASE_OUT_EXPO)
                         .addKeyframe(1f, 1f, 1f, 1f, Easings.EASE_OUT_BOUNCE))
-                .onStart(e -> level.playLocalSound(pos.x, pos.y, pos.z,
+                .onStart(vfxEntity -> level.playLocalSound(pos.x, pos.y, pos.z,
                         SoundEvents.ANVIL_LAND, SoundSource.AMBIENT, 1f, 1.2f, false))
                 .build(30);
 
@@ -186,7 +186,7 @@ public class VfxDemos {
                 .overlay(1f, 0.5f, 0f, 0f, builder -> builder
                         .addIntensityKeyframe(0.2f, 0.9f, Easings.EASE_OUT_QUAD)
                         .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
-                .onStart(e -> level.playLocalSound(pos.x, pos.y, pos.z,
+                .onStart(vfxEntity -> level.playLocalSound(pos.x, pos.y, pos.z,
                         SoundEvents.GENERIC_EXPLODE.value(), SoundSource.AMBIENT, 0.6f, 1.5f, false))
                 .build(25);
 
@@ -271,7 +271,7 @@ public class VfxDemos {
 
         trail.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.PACKED_ICE.defaultBlockState(), builder -> {})
-                .scale(0.4f, builder -> {})
+                .scale(0.75f, builder -> {})
                 .rotation(0, 0, 0, builder -> builder
                         .addKeyframe(1f, 360, 360, 0, Easings.LINEAR))
                 .onEnd(vfxEntity -> {
@@ -281,12 +281,14 @@ public class VfxDemos {
 
                     VfxEntity impact = VfxEntity.create(level, impactPos);
                     level.addEntity(impact);
-                    impact.inheritPropertiesFrom(vfxEntity);
+                    var snapshot = vfxEntity.captureCurrentSnapshot();
                     impact.playAnimation(VfxAnimationBuilder.create()
+                            .blockState(snapshot.blockState(), builder -> {})
+                            .rotation(snapshot.rotation(), builder -> {})
                             .overlay(o -> o
                                     .addIntensityKeyframe(1.0f, 0.0f, Easings.EASE_OUT_QUAD))
                             .scale(s -> s
-                                    .addKeyframe(1.0f, 1.8f, Easings.EASE_OUT_EXPO))
+                                    .addKeyframe(1.0f, 2f, Easings.EASE_OUT_EXPO))
                             .build(12));
                 })
                 .loopInfinite()

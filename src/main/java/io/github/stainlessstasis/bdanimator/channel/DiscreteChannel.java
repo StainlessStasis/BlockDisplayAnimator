@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.bdanimator.channel;
 
+import io.github.stainlessstasis.bdanimator.easing.Easings;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -9,6 +10,10 @@ public class DiscreteChannel<T> implements Channel<T> {
 
     public DiscreteChannel(List<Keyframe<T>> keyframes) {
         this.keyframes = List.copyOf(keyframes);
+    }
+
+    public static <T> DiscreteChannel<T> holdDiscreteChannel(T value) {
+        return new DiscreteChannel<>(List.of(new Keyframe<>(0f, value, Easings.LINEAR.get())));
     }
 
     public T getLastKeyframeValue() {

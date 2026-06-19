@@ -6,9 +6,6 @@ import io.github.stainlessstasis.bdanimator.animation.VfxSnapshot;
 import io.github.stainlessstasis.bdanimator.channel.DiscreteChannel;
 import io.github.stainlessstasis.bdanimator.channel.InterpolatedChannel;
 import io.github.stainlessstasis.bdanimator.channel.Interpolators;
-import io.github.stainlessstasis.bdanimator.channel.Keyframe;
-import io.github.stainlessstasis.bdanimator.easing.Easings;
-import io.github.stainlessstasis.bdanimator.util.PartialTickUtil;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.entity.DisplayRenderer;
@@ -171,10 +168,10 @@ public class VfxEntity extends Entity {
      */
     public void stopAnimations() {
         if (currentAnimation == null) return;
+        lastSnapshot = captureSnapshot(currentAnimation, getAnimationProgress(0f));
         if (currentAnimation.onEnd() != null) {
             currentAnimation.onEnd().accept(this);
         }
-        lastSnapshot = captureSnapshot(currentAnimation, 1f);
         currentAnimation = null;
         loopsCompleted = 0;
         isPaused = false;
@@ -241,8 +238,11 @@ public class VfxEntity extends Entity {
         animationQueue.clear();
     }
 
-    private VfxSnapshot captureSnapshot() {
-        return captureSnapshot(lastProgress);
+    public VfxSnapshot captureCurrentSnapshot() {
+        if (currentAnimation != null) {
+            return captureSnapshot(currentAnimation, getAnimationProgress(0f));
+        }
+        return lastSnapshot;
     }
 
     private VfxSnapshot captureSnapshot(float t) {
@@ -256,7 +256,12 @@ public class VfxEntity extends Entity {
                 lastRenderedTranslation,
                 lastRenderedScale,
                 animation.rotationChannel().resolveValueAt(
-                        t, animation.inheritRotation() ? prev.rotation() : VfxSnapshot.DEFAULT.rotation()
+                        t, animation.inheritRotation() ? prev.rotation() : VfxSnapshot.DEFAULT.rotation(),
+                        (start, end, factor) -> {
+                            Vector3f result = new Vector3f();
+                            Interpolators.lerpVector3f(start, end, factor, result);
+                            return result;
+                        }
                 ),
                 lastRenderedOverlayColor,
                 lastRenderedOverlayIntensity[0],
@@ -265,66 +270,38 @@ public class VfxEntity extends Entity {
         );
     }
 
-    public void inheritPropertiesFrom(VfxEntity other) {
-        if (other.currentAnimation != null) {
-            this.lastSnapshot = other.captureSnapshot(other.currentAnimation, other.getAnimationProgress(PartialTickUtil.get()));
-        } else {
-            this.lastSnapshot = other.lastSnapshot;
-        }
-    }
-
     private VfxAnimation resolveInheritedDefaults(VfxAnimation animation) {
         var snapshot = this.lastSnapshot;
 
         var translation = (animation.inheritTranslation() && !animation.translationDeclared())
-                ? holdChannel(snapshot.translation(), Interpolators::lerpVector3f)
+                ? InterpolatedChannel.holdChannel(snapshot.translation(), Interpolators::lerpVector3f)
                 : animation.translationChannel();
 
         var scale = (animation.inheritScale() && !animation.scaleDeclared())
-                ? holdChannel(snapshot.scale(), Interpolators::lerpVector3f)
+                ? InterpolatedChannel.holdChannel(snapshot.scale(), Interpolators::lerpVector3f)
                 : animation.scaleChannel();
 
         var rotation = (animation.inheritRotation() && !animation.rotationDeclared())
-                ? holdChannel(snapshot.rotation(), Interpolators::lerpDegrees)
+                ? InterpolatedChannel.holdChannel(snapshot.rotation(), Interpolators::lerpDegrees)
                 : animation.rotationChannel();
 
         var overlayColor = (animation.inheritOverlayColor() && !animation.overlayDeclared())
-                ? holdChannel(snapshot.overlayColor(), Interpolators::lerpVector3f)
+                ? InterpolatedChannel.holdChannel(snapshot.overlayColor(), Interpolators::lerpVector3f)
                 : animation.overlayColorChannel();
 
         var overlayIntensity = (animation.inheritOverlayIntensity() && !animation.overlayDeclared())
-                ? holdFloatChannel(snapshot.overlayIntensity())
+                ? InterpolatedChannel.holdChannel(snapshot.overlayIntensity(), Interpolators::lerpFloat)
                 : animation.overlayIntensityChannel();
 
         var blockState = (animation.inheritBlockState() && !animation.blockStateDeclared())
-                ? holdDiscreteChannel(snapshot.blockState())
+                ? DiscreteChannel.holdDiscreteChannel(snapshot.blockState())
                 : animation.blockStateChannel();
 
         var itemStack = (animation.inheritItemStack() && !animation.itemStackDeclared())
-                ? holdDiscreteChannel(snapshot.itemStack())
+                ? DiscreteChannel.holdDiscreteChannel(snapshot.itemStack())
                 : animation.itemStackChannel();
 
         return animation.withChannels(translation, scale, rotation, overlayColor, overlayIntensity, blockState, itemStack);
-    }
-
-    private static <S, T> InterpolatedChannel<S, T> holdChannel(S value, InterpolatedChannel.LerpFunction<S, T> lerp) {
-        return new InterpolatedChannel<>(
-                List.of(new Keyframe<>(0f, value, Easings.LINEAR.get()),
-                        new Keyframe<>(1f, value, Easings.LINEAR.get())),
-                lerp
-        );
-    }
-
-    private static InterpolatedChannel<Float, float[]> holdFloatChannel(float value) {
-        return new InterpolatedChannel<>(
-                List.of(new Keyframe<>(0f, value, Easings.LINEAR.get()),
-                        new Keyframe<>(1f, value, Easings.LINEAR.get())),
-                Interpolators::lerpFloat
-        );
-    }
-
-    private static <T> DiscreteChannel<T> holdDiscreteChannel(T value) {
-        return new DiscreteChannel<>(List.of(new Keyframe<>(0f, value, Easings.LINEAR.get())));
     }
 
     protected void updateRenderedTranslation(Vector3f value) { this.lastRenderedTranslation.set(value); }
@@ -363,7 +340,7 @@ public class VfxEntity extends Entity {
             tickDespawn();
         } else {
             if (!isPaused) {
-                tickAnimations(PartialTickUtil.get());
+                tickAnimations(0f);
             }
         }
     }
