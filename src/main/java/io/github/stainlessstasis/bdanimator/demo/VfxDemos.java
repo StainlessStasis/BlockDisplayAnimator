@@ -1,6 +1,8 @@
-package io.github.stainlessstasis.bdanimator.animation;
+package io.github.stainlessstasis.bdanimator.demo;
 
 import com.mojang.math.Transformation;
+import io.github.stainlessstasis.bdanimator.animation.VfxAnimation;
+import io.github.stainlessstasis.bdanimator.animation.VfxAnimationBuilder;
 import io.github.stainlessstasis.bdanimator.easing.Easing;
 import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
@@ -43,6 +45,7 @@ public class VfxDemos {
         DEMOS.put("tick_modifiers", VfxDemos::demoTickModifiers);
         DEMOS.put("entity_binding", VfxDemos::demoEntityBinding);
         DEMOS.put("shockwave", VfxDemos::demoShockwave);
+        DEMOS.put("nova_bomb", NovaBombDemo::demoNovaBomb);
         DEMOS.put("performance_test", VfxDemos::demoPerformanceTest);
         DEMOS.put("vanilla_performance_test", VfxDemos::demoVanillaPerformanceTest);
     }
@@ -290,6 +293,7 @@ public class VfxDemos {
                     VfxEntity impact = VfxEntity.create(level, impactPos);
                     impact.setBrightnessOverride(Brightness.FULL_BRIGHT.pack());
                     level.addEntity(impact);
+
                     var snapshot = vfxEntity.captureCurrentSnapshot();
                     impact.playAnimation(VfxAnimationBuilder.create()
                             .blockState(snapshot.blockState(), builder -> {})

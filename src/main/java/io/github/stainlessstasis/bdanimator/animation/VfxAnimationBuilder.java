@@ -99,6 +99,11 @@ public class VfxAnimationBuilder {
         return min + (float)(Math.random() * (max - min));
     }
 
+    public static int randomBetween(int min, int max) {
+        return min + (int)(Math.random() * (max - min));
+    }
+
+    @SafeVarargs
     public static <T> T randomOf(T... options) {
         return options[(int) (Math.random() * options.length)];
     }

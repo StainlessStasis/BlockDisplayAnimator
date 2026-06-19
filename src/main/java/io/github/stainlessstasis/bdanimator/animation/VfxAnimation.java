@@ -62,7 +62,7 @@ public record VfxAnimation(
     }
 
     public record AnimationContext(VfxEntity entity, float interpolatedTicks, float partialTick) {
-        public float getNormalizedAnimationProgress() {
+        public float getAnimationProgress() {
             return entity.getAnimationProgress(partialTick);
         }
     }

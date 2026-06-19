@@ -2,7 +2,7 @@ package io.github.stainlessstasis.bdanimator;
 
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import io.github.stainlessstasis.bdanimator.animation.VfxDemos;
+import io.github.stainlessstasis.bdanimator.demo.VfxDemos;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
 import io.github.stainlessstasis.bdanimator.entity.BDAnimatorEntities;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntityRenderer;
