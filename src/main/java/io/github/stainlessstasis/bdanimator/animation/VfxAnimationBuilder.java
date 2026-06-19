@@ -70,6 +70,12 @@ public class VfxAnimationBuilder {
     private InterpolatedChannel<Float, float[]> overlayIntensityChannel;
     private DiscreteChannel<BlockState> blockStateChannel;
     private DiscreteChannel<ItemStack> itemStackChannel;
+    private boolean translationDeclared = false;
+    private boolean scaleDeclared = false;
+    private boolean rotationDeclared = false;
+    private boolean overlayDeclared = false;
+    private boolean blockStateDeclared = false;
+    private boolean itemStackDeclared = false;
     private boolean inheritTranslation;
     private boolean inheritScale;
     private boolean inheritRotation;
@@ -181,6 +187,7 @@ public class VfxAnimationBuilder {
     }
 
     public VfxAnimationBuilder translation(Vector3f start, Consumer<Vector3fBuilder> builderConsumer) {
+        translationDeclared = true;
         Vector3fBuilder builder = new Vector3fBuilder(start, kfs -> translationChannel = new InterpolatedChannel<>(kfs, Interpolators::lerpVector3f));
         builderConsumer.accept(builder);
         builder.end();
@@ -200,6 +207,7 @@ public class VfxAnimationBuilder {
     }
 
     public VfxAnimationBuilder scale(Vector3f start, Consumer<Vector3fBuilder> builderConsumer) {
+        scaleDeclared = true;
         Vector3fBuilder builder = new Vector3fBuilder(start, kfs -> scaleChannel = new InterpolatedChannel<>(kfs, Interpolators::lerpVector3f));
         builderConsumer.accept(builder);
         builder.end();
@@ -219,6 +227,7 @@ public class VfxAnimationBuilder {
     }
 
     public VfxAnimationBuilder rotation(Vector3f startDegrees, Consumer<Vector3fBuilder> builderConsumer) {
+        rotationDeclared = true;
         Vector3fBuilder builder = new Vector3fBuilder(startDegrees, kfs -> rotationChannel = new InterpolatedChannel<>(kfs, Interpolators::lerpDegrees));
         builderConsumer.accept(builder);
         builder.end();
@@ -238,6 +247,7 @@ public class VfxAnimationBuilder {
     }
 
     public VfxAnimationBuilder overlay(Vector3f startColor, float startIntensity, Consumer<OverlayBuilder> builderConsumer) {
+        overlayDeclared = true;
         OverlayBuilder builder = new OverlayBuilder(startColor, startIntensity);
         builderConsumer.accept(builder);
         builder.end();
@@ -257,6 +267,7 @@ public class VfxAnimationBuilder {
     }
 
     public VfxAnimationBuilder blockState(BlockState initial, Consumer<BlockStateBuilder> builderConsumer) {
+        blockStateDeclared = true;
         BlockStateBuilder builder = new BlockStateBuilder(initial);
         builderConsumer.accept(builder);
         builder.end();
@@ -264,6 +275,7 @@ public class VfxAnimationBuilder {
     }
 
     public VfxAnimationBuilder itemStack(ItemStack initial, Consumer<ItemStackBuilder> builderConsumer) {
+        itemStackDeclared = true;
         ItemStackBuilder builder = new ItemStackBuilder(initial);
         builderConsumer.accept(builder);
         builder.end();
@@ -284,6 +296,7 @@ public class VfxAnimationBuilder {
                 .toList();
         return new VfxAnimation(
                 translationChannel, scaleChannel, rotationChannel, overlayColorChannel, overlayIntensityChannel, blockStateChannel, itemStackChannel,
+                translationDeclared, scaleDeclared, rotationDeclared, overlayDeclared, blockStateDeclared, itemStackDeclared,
                 inheritTranslation, inheritScale, inheritRotation, inheritOverlayColor, inheritOverlayIntensity, inheritBlockState, inheritItemStack,
                 translationModifier, scaleModifier, rotationModifier, overlayColorModifier, overlayIntensityModifier,
                 rotationPivot, durationTicks, loopCount, onStart, onEnd, onLoop, sortedKeyframeCallbacks

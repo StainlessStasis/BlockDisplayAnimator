@@ -20,6 +20,12 @@ public record VfxAnimation(
         InterpolatedChannel<Float, float[]> overlayIntensityChannel,
         DiscreteChannel<BlockState> blockStateChannel,
         DiscreteChannel<ItemStack> itemStackChannel,
+        boolean translationDeclared,
+        boolean scaleDeclared,
+        boolean rotationDeclared,
+        boolean overlayDeclared,
+        boolean blockStateDeclared,
+        boolean itemStackDeclared,
         boolean inheritTranslation,
         boolean inheritScale,
         boolean inheritRotation,
@@ -64,5 +70,23 @@ public record VfxAnimation(
     public boolean hasAnyInheritance() {
         return this.inheritTranslation() || this.inheritScale() || this.inheritRotation()
                 || this.inheritOverlayColor() || this.inheritOverlayIntensity() || this.inheritBlockState() || this.inheritItemStack();
+    }
+
+    public VfxAnimation withChannels(
+            InterpolatedChannel<Vector3f, Vector3f> translation,
+            InterpolatedChannel<Vector3f, Vector3f> scale,
+            InterpolatedChannel<Vector3f, Quaternionf> rotation,
+            InterpolatedChannel<Vector3f, Vector3f> overlayColor,
+            InterpolatedChannel<Float, float[]> overlayIntensity,
+            DiscreteChannel<BlockState> blockState,
+            DiscreteChannel<ItemStack> itemStack
+    ) {
+        return new VfxAnimation(
+                translation, scale, rotation, overlayColor, overlayIntensity, blockState, itemStack,
+                translationDeclared, scaleDeclared, rotationDeclared, overlayDeclared, blockStateDeclared, itemStackDeclared,
+                inheritTranslation, inheritScale, inheritRotation, inheritOverlayColor, inheritOverlayIntensity, inheritBlockState, inheritItemStack,
+                translationModifier, scaleModifier, rotationModifier, overlayColorModifier, overlayIntensityModifier,
+                rotationPivot, durationTicks, loopCount, onStart, onEnd, onLoop, keyframeCallbacks
+        );
     }
 }

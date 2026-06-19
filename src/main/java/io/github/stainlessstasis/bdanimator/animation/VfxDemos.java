@@ -283,11 +283,9 @@ public class VfxDemos {
                     level.addEntity(impact);
                     impact.inheritPropertiesFrom(vfxEntity);
                     impact.playAnimation(VfxAnimationBuilder.create()
-                            .blockState(Blocks.PACKED_ICE.defaultBlockState(), builder -> {})
-                            .overlay(1f, 1f, 1f, 0f, builder -> builder
-                                    .addIntensityKeyframe(0.0f, 0.9f)
+                            .overlay(o -> o
                                     .addIntensityKeyframe(1.0f, 0.0f, Easings.EASE_OUT_QUAD))
-                            .scale(1.0f, builder -> builder
+                            .scale(s -> s
                                     .addKeyframe(1.0f, 1.8f, Easings.EASE_OUT_EXPO))
                             .build(12));
                 })

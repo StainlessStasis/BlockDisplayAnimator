@@ -3,6 +3,11 @@ package io.github.stainlessstasis.bdanimator.entity;
 import io.github.stainlessstasis.bdanimator.animation.BillboardMode;
 import io.github.stainlessstasis.bdanimator.animation.VfxAnimation;
 import io.github.stainlessstasis.bdanimator.animation.VfxSnapshot;
+import io.github.stainlessstasis.bdanimator.channel.DiscreteChannel;
+import io.github.stainlessstasis.bdanimator.channel.InterpolatedChannel;
+import io.github.stainlessstasis.bdanimator.channel.Interpolators;
+import io.github.stainlessstasis.bdanimator.channel.Keyframe;
+import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.util.PartialTickUtil;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
@@ -28,6 +33,7 @@ import org.joml.Vector3f;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 import java.util.function.Consumer;
 
 @SuppressWarnings("NullableProblems")
@@ -107,6 +113,7 @@ public class VfxEntity extends Entity {
      * See {@link #playOrQueueAnimation} for queueing animations.
      */
     public void playAnimation(VfxAnimation animation, float progressOffset) {
+        animation = resolveInheritedDefaults(animation);
         this.currentAnimation = animation;
         this.animationDurationTicks = animation.durationTicks();
         this.loopsCompleted = 0;
@@ -264,12 +271,64 @@ public class VfxEntity extends Entity {
         } else {
             this.lastSnapshot = other.lastSnapshot;
         }
-        System.out.println(lastSnapshot);
+    }
+
+    private VfxAnimation resolveInheritedDefaults(VfxAnimation animation) {
+        var snapshot = this.lastSnapshot;
+
+        var translation = (animation.inheritTranslation() && !animation.translationDeclared())
+                ? holdChannel(snapshot.translation(), Interpolators::lerpVector3f)
+                : animation.translationChannel();
+
+        var scale = (animation.inheritScale() && !animation.scaleDeclared())
+                ? holdChannel(snapshot.scale(), Interpolators::lerpVector3f)
+                : animation.scaleChannel();
+
+        var rotation = (animation.inheritRotation() && !animation.rotationDeclared())
+                ? holdChannel(snapshot.rotation(), Interpolators::lerpDegrees)
+                : animation.rotationChannel();
+
+        var overlayColor = (animation.inheritOverlayColor() && !animation.overlayDeclared())
+                ? holdChannel(snapshot.overlayColor(), Interpolators::lerpVector3f)
+                : animation.overlayColorChannel();
+
+        var overlayIntensity = (animation.inheritOverlayIntensity() && !animation.overlayDeclared())
+                ? holdFloatChannel(snapshot.overlayIntensity())
+                : animation.overlayIntensityChannel();
+
+        var blockState = (animation.inheritBlockState() && !animation.blockStateDeclared())
+                ? holdDiscreteChannel(snapshot.blockState())
+                : animation.blockStateChannel();
+
+        var itemStack = (animation.inheritItemStack() && !animation.itemStackDeclared())
+                ? holdDiscreteChannel(snapshot.itemStack())
+                : animation.itemStackChannel();
+
+        return animation.withChannels(translation, scale, rotation, overlayColor, overlayIntensity, blockState, itemStack);
+    }
+
+    private static <S, T> InterpolatedChannel<S, T> holdChannel(S value, InterpolatedChannel.LerpFunction<S, T> lerp) {
+        return new InterpolatedChannel<>(
+                List.of(new Keyframe<>(0f, value, Easings.LINEAR.get()),
+                        new Keyframe<>(1f, value, Easings.LINEAR.get())),
+                lerp
+        );
+    }
+
+    private static InterpolatedChannel<Float, float[]> holdFloatChannel(float value) {
+        return new InterpolatedChannel<>(
+                List.of(new Keyframe<>(0f, value, Easings.LINEAR.get()),
+                        new Keyframe<>(1f, value, Easings.LINEAR.get())),
+                Interpolators::lerpFloat
+        );
+    }
+
+    private static <T> DiscreteChannel<T> holdDiscreteChannel(T value) {
+        return new DiscreteChannel<>(List.of(new Keyframe<>(0f, value, Easings.LINEAR.get())));
     }
 
     protected void updateRenderedTranslation(Vector3f value) { this.lastRenderedTranslation.set(value); }
     protected void updateRenderedScale(Vector3f value) { this.lastRenderedScale.set(value); }
-    protected void updateRenderedRotation(Vector3f eulerDegrees) { this.lastRenderedRotation.set(eulerDegrees); }
     protected void updateRenderedOverlayColor(Vector3f value) { this.lastRenderedOverlayColor.set(value); }
     protected void updateRenderedOverlayIntensity(float value) { this.lastRenderedOverlayIntensity[0] = value; }
     protected void updateBlockModel(BlockState currentState, BlockModelResolver resolver) {
