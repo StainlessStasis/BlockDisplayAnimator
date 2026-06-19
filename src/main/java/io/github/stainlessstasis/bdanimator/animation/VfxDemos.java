@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.bdanimator.animation;
 
+import com.mojang.math.Transformation;
 import io.github.stainlessstasis.bdanimator.easing.Easing;
 import io.github.stainlessstasis.bdanimator.easing.Easings;
 import io.github.stainlessstasis.bdanimator.entity.VfxEntity;
@@ -10,6 +11,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Brightness;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
@@ -18,6 +21,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
@@ -38,6 +42,9 @@ public class VfxDemos {
         DEMOS.put("loops_and_callbacks", VfxDemos::demoLoopsAndCallbacks);
         DEMOS.put("tick_modifiers", VfxDemos::demoTickModifiers);
         DEMOS.put("entity_binding", VfxDemos::demoEntityBinding);
+        DEMOS.put("shockwave", VfxDemos::demoShockwave);
+        DEMOS.put("performance_test", VfxDemos::demoPerformanceTest);
+        DEMOS.put("vanilla_performance_test", VfxDemos::demoVanillaPerformanceTest);
     }
 
     public static Set<String> getDemoNames() {
@@ -69,12 +76,13 @@ public class VfxDemos {
             VfxEntity entity = VfxEntity.create(level, pos.add(i * spacing, 0, 0));
             level.addEntity(entity);
 
+            var easing = easings.get(idx);
             entity.playAnimation(VfxAnimationBuilder.create()
                     .blockState(blocks[i], builder -> {})
                     .scale(0.5f, builder -> {})
                     .translation(builder -> builder
-                            .addKeyframe(0.5f, 0, 4, 0, easings.get(idx))
-                            .addKeyframe(1f, 0, 0, 0, easings.get(idx)))
+                            .addKeyframe(0.5f, 0, 4, 0, easing)
+                            .addKeyframe(1f, 0, 0, 0, easing))
                     .loopInfinite()
                     .build(80));
         }
@@ -280,6 +288,7 @@ public class VfxDemos {
                             SoundEvents.GLASS_BREAK, SoundSource.AMBIENT, 1.0f, 0.6f, false);
 
                     VfxEntity impact = VfxEntity.create(level, impactPos);
+                    impact.setBrightnessOverride(Brightness.FULL_BRIGHT.block());
                     level.addEntity(impact);
                     var snapshot = vfxEntity.captureCurrentSnapshot();
                     impact.playAnimation(VfxAnimationBuilder.create()
@@ -293,5 +302,172 @@ public class VfxDemos {
                 })
                 .loopInfinite()
                 .build(40));
+    }
+
+    public static void demoShockwave(ClientLevel level, LocalPlayer player) {
+        Vec3 center = player.getEyePosition().add(player.getLookAngle().normalize().scale(6f));
+
+        int ringCount = 48;
+        int baseDuration = 20;
+
+        BlockState[][] colorSequences = {
+                { Blocks.SHROOMLIGHT.defaultBlockState(), Blocks.ORANGE_CONCRETE.defaultBlockState(), Blocks.GRAY_STAINED_GLASS.defaultBlockState() },
+                { Blocks.SHROOMLIGHT.defaultBlockState(), Blocks.ORANGE_STAINED_GLASS.defaultBlockState(), Blocks.WHITE_STAINED_GLASS.defaultBlockState() },
+                { Blocks.MAGMA_BLOCK.defaultBlockState(), Blocks.RED_STAINED_GLASS.defaultBlockState(), Blocks.BLACK_STAINED_GLASS.defaultBlockState() },
+        };
+
+        for (int i = 0; i < ringCount; i++) {
+            double angle = (2 * Math.PI / ringCount) * i;
+            float dirX = (float) Math.cos(angle);
+            float dirZ = (float) Math.sin(angle);
+
+            BlockState[] sequence = VfxAnimationBuilder.randomOf(colorSequences);
+
+            float radius = 10f;
+            float startScale = VfxAnimationBuilder.randomBetween(2f, 2.75f);
+            float endScale = VfxAnimationBuilder.randomBetween(0.5f, 0.75f);
+            float fireTransition = VfxAnimationBuilder.randomBetween(0.25f, 0.4f);
+            float smokeTransition = VfxAnimationBuilder.randomBetween(0.5f, 0.7f);
+
+            Vector3f startRotation = new Vector3f(
+                    VfxAnimationBuilder.randomBetween(0f, 360f),
+                    VfxAnimationBuilder.randomBetween(0f, 360f),
+                    VfxAnimationBuilder.randomBetween(0f, 360f)
+            );
+
+            VfxEntity entity = VfxEntity.create(level, center);
+            level.addEntity(entity);
+
+            VfxAnimation anim = VfxAnimationBuilder.create()
+                    .blockState(sequence[0], b -> b
+                            .addKeyframe(fireTransition, sequence[1])
+                            .addKeyframe(smokeTransition, sequence[2]))
+                    .translation(0, 0, 0, t -> t
+                            .addKeyframe(1f, dirX * radius, 0, dirZ * radius, Easings.EASE_OUT_EXPO))
+                    .scale(startScale, s -> s
+                            .addKeyframe(0.7f, startScale * 0.75f, Easings.EASE_IN_QUAD)
+                            .addKeyframe(1f, endScale, Easings.EASE_IN_QUAD))
+                    .rotation(startRotation, r -> r
+                            .addRandomDeltaKeyframe(1f, -30f, 30f, Easings.EASE_OUT_QUAD))
+                    .overlay(new Vector3f(1f, 0.5f, 0f), 0.8f, o -> o
+                            .addColorKeyframe(fireTransition, new Vector3f(0.8f, 0.0f, 0f), Easings.EASE_IN_QUAD)
+                            .addColorKeyframe(smokeTransition, new Vector3f(0.1f, 0.0f, 0.0f), Easings.EASE_IN_QUAD)
+                            .addIntensityKeyframe(smokeTransition, 0.2f, Easings.EASE_IN_QUAD)
+                            .addColorKeyframe(1f, new Vector3f(0.05f, 0.05f, 0.05f))
+                            .addIntensityKeyframe(1f, 0f, Easings.EASE_IN_QUAD))
+                    .build(baseDuration + (int) VfxAnimationBuilder.randomBetween(0f, 10f));
+
+            entity.playAnimation(anim);
+        }
+    }
+
+    public static void demoPerformanceTest(ClientLevel level, LocalPlayer player) {
+        double px = player.getX();
+        double py = player.getY();
+        double pz = player.getZ();
+        float radius = 20f;
+
+        BlockState[] blocks = {
+                Blocks.CYAN_STAINED_GLASS.defaultBlockState(),
+                Blocks.DIAMOND_BLOCK.defaultBlockState(),
+                Blocks.FURNACE.defaultBlockState(),
+                Blocks.OAK_LOG.defaultBlockState(),
+                Blocks.STONE.defaultBlockState(),
+        };
+
+        int count = 5000;
+        for (int i = 0; i < count; i++) {
+            double theta = Math.random() * 2 * Math.PI;
+            double phi = Math.acos(2 * Math.random() - 1);
+            double r = radius * Math.cbrt(Math.random());
+            double x = px + r * Math.sin(phi) * Math.cos(theta);
+            double y = py + r * Math.cos(phi);
+            double z = pz + r * Math.sin(phi) * Math.sin(theta);
+
+            VfxEntity entity = VfxEntity.create(level, new Vec3(x, y, z));
+            level.addEntity(entity);
+
+            int duration = 1800 + (int) VfxAnimationBuilder.randomBetween(0f, 900f);
+            VfxAnimation anim = VfxAnimationBuilder.create()
+                    .blockState(blocks[i % blocks.length], b -> {})
+                    .translation(0, 0, 0, t -> t
+                            .addRandomKeyframe(1f, -2f, 2f, 0f, 4f, -2f, 2f, Easings.random(player.getRandom())))
+                    .scale(0.5f, s -> s
+                            .addRandomKeyframe(1f, 0.5f, 2f, 0.5f, 2f, 0.5f, 2f, Easings.random(player.getRandom())))
+                    .rotation(0, 0, 0, rot -> rot
+                            .addRandomKeyframe(1f, 0f, 720f, 0f, 720f, 0f, 720f, Easings.random(player.getRandom())))
+                    .build(duration);
+            entity.playAnimation(anim);
+        }
+
+        player.sendSystemMessage(Component.literal("Spawned " + count + " VFX entities"));
+    }
+
+    public static void demoVanillaPerformanceTest(ClientLevel level, LocalPlayer player) {
+        double px = player.getX();
+        double py = player.getY();
+        double pz = player.getZ();
+        float radius = 20f;
+
+        BlockState[] blocks = {
+                Blocks.CYAN_STAINED_GLASS.defaultBlockState(),
+                Blocks.DIAMOND_BLOCK.defaultBlockState(),
+                Blocks.FURNACE.defaultBlockState(),
+                Blocks.OAK_LOG.defaultBlockState(),
+                Blocks.STONE.defaultBlockState(),
+        };
+
+        int count = 5000;
+        for (int i = 0; i < count; i++) {
+            double theta = Math.random() * 2 * Math.PI;
+            double phi = Math.acos(2 * Math.random() - 1);
+            double r = radius * Math.cbrt(Math.random());
+            double x = px + r * Math.sin(phi) * Math.cos(theta);
+            double y = py + r * Math.cos(phi);
+            double z = pz + r * Math.sin(phi) * Math.sin(theta);
+
+            Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
+            entity.setPos(x, y, z);
+            entity.setBlockState(blocks[i % blocks.length]);
+
+            int duration = 1800 + (int) VfxAnimationBuilder.randomBetween(0f, 900f);
+
+            Vector3f endTranslation = new Vector3f(
+                    VfxAnimationBuilder.randomBetween(-2f, 2f),
+                    VfxAnimationBuilder.randomBetween(0f, 4f),
+                    VfxAnimationBuilder.randomBetween(-2f, 2f)
+            );
+            Vector3f endScale = new Vector3f(
+                    VfxAnimationBuilder.randomBetween(0.5f, 2f),
+                    VfxAnimationBuilder.randomBetween(0.5f, 2f),
+                    VfxAnimationBuilder.randomBetween(0.5f, 2f)
+            );
+            Quaternionf endRotation = new Quaternionf().rotationXYZ(
+                    (float) Math.toRadians(VfxAnimationBuilder.randomBetween(0f, 720f)),
+                    (float) Math.toRadians(VfxAnimationBuilder.randomBetween(0f, 720f)),
+                    (float) Math.toRadians(VfxAnimationBuilder.randomBetween(0f, 720f))
+            );
+
+            entity.setTransformation(new Transformation(
+                    new Vector3f(0, 0, 0),
+                    new Quaternionf(),
+                    new Vector3f(0.5f, 0.5f, 0.5f),
+                    null
+            ));
+
+            entity.setTransformationInterpolationDuration(duration);
+            entity.setTransformationInterpolationDelay(0);
+
+            entity.setTransformation(new Transformation(
+                    endTranslation,
+                    endRotation,
+                    endScale,
+                    null
+            ));
+
+            level.addEntity(entity);
+        }
+
+        player.sendSystemMessage(Component.literal("Spawned " + count + " vanilla Block Display entities"));
     }
 }

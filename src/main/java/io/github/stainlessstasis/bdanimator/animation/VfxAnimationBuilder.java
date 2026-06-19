@@ -95,6 +95,14 @@ public class VfxAnimationBuilder {
     private int loopCount = 0;
     private final Map<Float, Consumer<VfxEntity>> keyframeCallbacks = new LinkedHashMap<>();
 
+    public static float randomBetween(float min, float max) {
+        return min + (float)(Math.random() * (max - min));
+    }
+
+    public static <T> T randomOf(T... options) {
+        return options[(int) (Math.random() * options.length)];
+    }
+
     public VfxAnimationBuilder onStart(Consumer<VfxEntity> callback) {
         this.onStart = callback;
         return this;
@@ -372,6 +380,18 @@ public class VfxAnimationBuilder {
             return addRandomKeyframe(time, minX, maxX, minY, maxY, minZ, maxZ, Easings.LINEAR);
         }
 
+        public Vector3fBuilder addRandomDeltaKeyframe(float time, float deltaMin, float deltaMax, Supplier<Easing> easing) {
+            Vector3f base = keyframes.getLast().value();
+            return addKeyframe(time, new Vector3f(
+                    base.x + randomBetween(deltaMin, deltaMax),
+                    base.y + randomBetween(deltaMin, deltaMax),
+                    base.z + randomBetween(deltaMin, deltaMax)
+            ), easing);
+        }
+        public Vector3fBuilder addRandomDeltaKeyframe(float time, float deltaMin, float deltaMax) {
+            return addRandomDeltaKeyframe(time, deltaMin, deltaMax, Easings.LINEAR);
+        }
+
         public Vector3fBuilder holdKeyframe(float time) {
             keyframes.add(new Keyframe<>(time, keyframes.getLast().value(), keyframes.getLast().easing()));
             return this;
@@ -443,6 +463,24 @@ public class VfxAnimationBuilder {
             return this;
         }
 
+        public OverlayBuilder addRandomColorKeyframe(float time, Vector3f min, Vector3f max, Supplier<Easing> easing) {
+            return addColorKeyframe(time, new Vector3f(
+                    VfxAnimationBuilder.randomBetween(min.x, max.x),
+                    VfxAnimationBuilder.randomBetween(min.y, max.y),
+                    VfxAnimationBuilder.randomBetween(min.z, max.z)
+            ), easing);
+        }
+        public OverlayBuilder addRandomColorKeyframe(float time, Vector3f min, Vector3f max) {
+            return addRandomColorKeyframe(time, min, max, Easings.LINEAR);
+        }
+
+        public OverlayBuilder addRandomIntensityKeyframe(float time, float min, float max, Supplier<Easing> easing) {
+            return addIntensityKeyframe(time, VfxAnimationBuilder.randomBetween(min, max), easing);
+        }
+        public OverlayBuilder addRandomIntensityKeyframe(float time, float min, float max) {
+            return addRandomIntensityKeyframe(time, min, max, Easings.LINEAR);
+        }
+
         private void end() {
             colorKeyframes.add(new Keyframe<>(1f, colorKeyframes.getLast().value(), Easings.LINEAR.get()));
             intensityKeyframes.add(new Keyframe<>(1f, intensityKeyframes.getLast().value(), Easings.LINEAR.get()));
@@ -466,6 +504,10 @@ public class VfxAnimationBuilder {
         public B addKeyframe(float time, T state) {
             keyframes.add(new Keyframe<>(time, state, Easings.LINEAR.get()));
             return self();
+        }
+
+        public final B addRandomKeyframe(float time, T... options) {
+            return addKeyframe(time, VfxAnimationBuilder.randomOf(options));
         }
 
         public B holdKeyframe(float time) {
