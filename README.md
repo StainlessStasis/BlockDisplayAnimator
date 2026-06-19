@@ -1,6 +1,7 @@
 # VoxelFX
 
-Animate client-side block & item display entities with keyframes, easing functions, and much more! Make cool VFX like this:
+Animate client-side block & item display entities with keyframes, easing functions, and much more!<br>
+Make cool VFX like this:
 <video src="https://github.com/user-attachments/assets/272ee22a-42d3-4741-9064-bcfc3675386b" autoplay loop muted playsinline width="100%"></video>
 
 # Features
