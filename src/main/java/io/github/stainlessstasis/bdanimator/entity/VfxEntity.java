@@ -57,7 +57,7 @@ public class VfxEntity extends Entity {
     private int loopsCompleted = 0;
 
     private float cullingRadius = 32f;
-    private boolean isAffectedByCulling = true;
+    private boolean isAffectedByCulling = false;
 
     private @Nullable Entity boundEntity;
     private Vector3f bindOffset = new Vector3f();
