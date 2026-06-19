@@ -288,7 +288,7 @@ public class VfxDemos {
                             SoundEvents.GLASS_BREAK, SoundSource.AMBIENT, 1.0f, 0.6f, false);
 
                     VfxEntity impact = VfxEntity.create(level, impactPos);
-                    impact.setBrightnessOverride(Brightness.FULL_BRIGHT.block());
+                    impact.setBrightnessOverride(Brightness.FULL_BRIGHT.pack());
                     level.addEntity(impact);
                     var snapshot = vfxEntity.captureCurrentSnapshot();
                     impact.playAnimation(VfxAnimationBuilder.create()
