@@ -35,6 +35,10 @@ public class VfxEntityCache {
         toAdd.clear();
     }
 
+    public List<VfxEntity> getActive() {
+        return active;
+    }
+
     @SubscribeEvent
     static void onTick(ClientTickEvent.Pre event) {
         var instance = INSTANCE;

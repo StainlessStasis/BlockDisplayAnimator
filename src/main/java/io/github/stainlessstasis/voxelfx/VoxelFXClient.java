@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import io.github.stainlessstasis.voxelfx.demo.VfxDemos;
 import io.github.stainlessstasis.voxelfx.entity.VfxEntity;
+import io.github.stainlessstasis.voxelfx.entity.VfxEntityCache;
 import io.github.stainlessstasis.voxelfx.entity.VoxelFXEntities;
 import io.github.stainlessstasis.voxelfx.entity.VfxEntityRenderer;
 import net.minecraft.client.Minecraft;
@@ -20,9 +21,11 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
@@ -54,16 +57,14 @@ public class VoxelFXClient {
                                     Player player = Minecraft.getInstance().player;
                                     if (player == null) return 0;
 
-                                    List<VfxEntity> entities = level.getEntitiesOfClass(VfxEntity.class,
-                                            player.getBoundingBox().inflate(1000));
-                                    entities.forEach(Entity::discard);
+                                    int amount = getAllVfx().size();
+                                    VfxEntityCache.INSTANCE.clear();
 
                                     player.sendSystemMessage(Component.translatable(
-                                            VoxelFX.MODID + ".cleared_entities",
-                                            entities.size()
+                                            VoxelFX.MODID + ".cleared_entities", amount
                                     ));
 
-                                    return entities.size();
+                                    return amount;
                                 })
                         )
                         .then(Commands.literal("pause")
@@ -122,22 +123,18 @@ public class VoxelFXClient {
     }
 
     private static List<VfxEntity> getAllVfx() {
-        ClientLevel level = Minecraft.getInstance().level;
-        if (level == null) return List.of();
-        Player player = Minecraft.getInstance().player;
-        if (player == null) return List.of();
-
-        return level.getEntitiesOfClass(VfxEntity.class,
-                player.getBoundingBox().inflate(1000));
+        return VfxEntityCache.INSTANCE.getActive();
     }
 
     @SubscribeEvent
-    static void onKeyInput(InputEvent.Key event) {
-        if (event.getAction() != GLFW.GLFW_PRESS) return;
-        if (event.getKey() == GLFW.GLFW_KEY_LEFT_ALT) {
-            if (Minecraft.getInstance().level instanceof ClientLevel level && Minecraft.getInstance().player instanceof LocalPlayer player) {
-                VfxDemos.demoKeyframesAndEasings(level, player);
-            }
+    static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
+        VfxEntityCache.INSTANCE.clear();
+    }
+
+    @SubscribeEvent
+    static void onLevelUnload(LevelEvent.Unload event) {
+        if (event.getLevel().isClientSide()) {
+            VfxEntityCache.INSTANCE.clear();
         }
     }
 }
