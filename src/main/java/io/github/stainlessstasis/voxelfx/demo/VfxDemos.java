@@ -258,10 +258,13 @@ public class VfxDemos {
         snowball.setPos(pos);
         Vec3 look = player.getLookAngle();
         snowball.setDeltaMovement(look.scale(1.5f));
-        level.addEntity(snowball);
 
         VfxEntity trail = VfxEntity.createBoundTo(level, snowball);
+        // manually tick the snowball since clientside entities dont really work due to 26.2 changes. dont add it to the level
         trail.setOnTick(vfxEntity -> {
+            if (snowball.isAlive()) {
+                snowball.tick();
+            }
             if (!level.getBlockState(snowball.blockPosition()).isAir()) {
                 snowball.discard();
             }
