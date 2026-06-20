@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Brightness;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
@@ -72,7 +73,8 @@ public class VfxDemos {
         Vec3 pos = getFrontPosition(player);
         float spacing = 3f;
         List<Easing> easings = List.of(Easings.LINEAR, Easings.EASE_OUT_BOUNCE, Easings.EASE_IN_OUT_ELASTIC, Easings.EASE_OUT_EXPO);
-        BlockState[] blocks = { Blocks.RED_CONCRETE.defaultBlockState(), Blocks.YELLOW_CONCRETE.defaultBlockState(), Blocks.LIME_CONCRETE.defaultBlockState(), Blocks.CYAN_CONCRETE.defaultBlockState() };
+        BlockState[] blocks = { Blocks.CONCRETE.red().defaultBlockState(), Blocks.CONCRETE.yellow().defaultBlockState(),
+                Blocks.CONCRETE.lime().defaultBlockState(), Blocks.CONCRETE.cyan().defaultBlockState() };
 
         for (int i = 0; i < easings.size(); i++) {
             final int idx = i;
@@ -146,7 +148,7 @@ public class VfxDemos {
         level.addEntity(entity);
 
         entity.playAnimation(VfxAnimationBuilder.create()
-                .blockState(Blocks.WHITE_CONCRETE.defaultBlockState(), builder -> {})
+                .blockState(Blocks.CONCRETE.white().defaultBlockState(), builder -> {})
                 .scale(1f, builder -> {})
                 .overlay(1f, 0f, 0f, 0f, builder -> builder
                         .addColorKeyframe(0.25f, new Vector3f(1f, 0f, 0f))
@@ -263,7 +265,7 @@ public class VfxDemos {
 
     public static void demoEntityBinding(ClientLevel level, LocalPlayer player) {
         Vec3 pos = getFrontPosition(player);
-        Snowball snowball = new Snowball(EntityType.SNOWBALL, level);
+        Snowball snowball = new Snowball(EntityTypes.SNOWBALL, level);
         snowball.setPos(pos);
         Vec3 look = player.getLookAngle();
         snowball.setDeltaMovement(look.scale(1.5f));
@@ -315,9 +317,9 @@ public class VfxDemos {
         int baseDuration = 20;
 
         BlockState[][] colorSequences = {
-                { Blocks.SHROOMLIGHT.defaultBlockState(), Blocks.ORANGE_CONCRETE.defaultBlockState(), Blocks.GRAY_STAINED_GLASS.defaultBlockState() },
-                { Blocks.SHROOMLIGHT.defaultBlockState(), Blocks.ORANGE_STAINED_GLASS.defaultBlockState(), Blocks.WHITE_STAINED_GLASS.defaultBlockState() },
-                { Blocks.MAGMA_BLOCK.defaultBlockState(), Blocks.RED_STAINED_GLASS.defaultBlockState(), Blocks.BLACK_STAINED_GLASS.defaultBlockState() },
+                { Blocks.SHROOMLIGHT.defaultBlockState(), Blocks.CONCRETE.orange().defaultBlockState(), Blocks.STAINED_GLASS.gray().defaultBlockState() },
+                { Blocks.SHROOMLIGHT.defaultBlockState(), Blocks.STAINED_GLASS.orange().defaultBlockState(), Blocks.STAINED_GLASS.white().defaultBlockState() },
+                { Blocks.MAGMA_BLOCK.defaultBlockState(), Blocks.STAINED_GLASS.red().defaultBlockState(), Blocks.STAINED_GLASS.black().defaultBlockState() },
         };
 
         float radius = 10f;
@@ -368,7 +370,7 @@ public class VfxDemos {
         float radius = 20f;
 
         BlockState[] blocks = {
-                Blocks.CYAN_STAINED_GLASS.defaultBlockState(),
+                Blocks.STAINED_GLASS.cyan().defaultBlockState(),
                 Blocks.DIAMOND_BLOCK.defaultBlockState(),
                 Blocks.FURNACE.defaultBlockState(),
                 Blocks.OAK_LOG.defaultBlockState(),
@@ -410,7 +412,7 @@ public class VfxDemos {
         float radius = 20f;
 
         BlockState[] blocks = {
-                Blocks.CYAN_STAINED_GLASS.defaultBlockState(),
+                Blocks.STAINED_GLASS.cyan().defaultBlockState(),
                 Blocks.DIAMOND_BLOCK.defaultBlockState(),
                 Blocks.FURNACE.defaultBlockState(),
                 Blocks.OAK_LOG.defaultBlockState(),
@@ -426,7 +428,7 @@ public class VfxDemos {
             double y = py + r * Math.cos(phi);
             double z = pz + r * Math.sin(phi) * Math.sin(theta);
 
-            Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
+            Display.BlockDisplay entity = new Display.BlockDisplay(EntityTypes.BLOCK_DISPLAY, level);
             entity.setPos(x, y, z);
             entity.setBlockState(blocks[i % blocks.length]);
 

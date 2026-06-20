@@ -12,7 +12,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,7 +32,7 @@ public class NovaBombDemo {
         Vec3 spawnPos = player.getEyePosition().add(player.getLookAngle().scale(1.5f));
         Vec3 look = player.getLookAngle().normalize();
 
-        Snowball projectile = new Snowball(EntityType.SNOWBALL, level);
+        Snowball projectile = new Snowball(EntityTypes.SNOWBALL, level);
         projectile.setPos(spawnPos);
         projectile.setDeltaMovement(look.scale(2f));
         level.addEntity(projectile);
@@ -63,7 +63,7 @@ public class NovaBombDemo {
         BlockState[] orbitBlocks = {
                 Blocks.AMETHYST_BLOCK.defaultBlockState(),
                 Blocks.CRYING_OBSIDIAN.defaultBlockState(),
-                Blocks.PURPLE_STAINED_GLASS.defaultBlockState(),
+                Blocks.STAINED_GLASS.purple().defaultBlockState(),
                 Blocks.BUDDING_AMETHYST.defaultBlockState(),
         };
 
@@ -161,11 +161,11 @@ public class NovaBombDemo {
             float scale = randomBetween(0.2f, 0.9f);
             suction.playAnimation(VfxAnimationBuilder.create()
                     .blockState(randomOf(
-                            Blocks.PURPLE_STAINED_GLASS.defaultBlockState(),
+                            Blocks.STAINED_GLASS.purple().defaultBlockState(),
                             Blocks.AMETHYST_BLOCK.defaultBlockState(),
                             Blocks.CRYING_OBSIDIAN.defaultBlockState(),
                             Blocks.BUDDING_AMETHYST.defaultBlockState(),
-                            Blocks.BLACK_STAINED_GLASS.defaultBlockState()), b -> {})
+                            Blocks.STAINED_GLASS.black().defaultBlockState()), b -> {})
                     .scale(0f, s -> s
                             .addKeyframe(0.15f, scale, Easings.EASE_OUT_EXPO)
                             .addKeyframe(0.85f, scale * 0.6f, Easings.EASE_IN_QUAD)
@@ -230,7 +230,7 @@ public class NovaBombDemo {
                     BlockState block = randomOf(
                             Blocks.CRYING_OBSIDIAN.defaultBlockState(),
                             Blocks.AMETHYST_BLOCK.defaultBlockState(),
-                            Blocks.PURPLE_STAINED_GLASS.defaultBlockState(),
+                            Blocks.STAINED_GLASS.purple().defaultBlockState(),
                             Blocks.GILDED_BLACKSTONE.defaultBlockState(),
                             Blocks.OBSIDIAN.defaultBlockState(),
                             Blocks.BUDDING_AMETHYST.defaultBlockState()
@@ -242,7 +242,7 @@ public class NovaBombDemo {
                     burst.playAnimation(VfxAnimationBuilder.create()
                             .blockState(block, b -> b
                                     .addKeyframe(randomBetween(0.3f, 0.6f),
-                                            Blocks.BLACK_STAINED_GLASS.defaultBlockState()))
+                                            Blocks.STAINED_GLASS.black().defaultBlockState()))
                             .translation(0, 0, 0, t -> t
                                     .addKeyframe(0.3f,
                                             dir.x * speed, dir.y * speed, dir.z * speed,
@@ -281,8 +281,8 @@ public class NovaBombDemo {
                     BlockState block = randomOf(
                             Blocks.CRYING_OBSIDIAN.defaultBlockState(),
                             Blocks.AMETHYST_BLOCK.defaultBlockState(),
-                            Blocks.PURPLE_STAINED_GLASS.defaultBlockState(),
-                            Blocks.BLACK_STAINED_GLASS.defaultBlockState()
+                            Blocks.STAINED_GLASS.purple().defaultBlockState(),
+                            Blocks.STAINED_GLASS.black().defaultBlockState()
                     );
 
                     VfxEntity fragment = VfxEntity.create(level, impact);
@@ -291,7 +291,7 @@ public class NovaBombDemo {
                     fragment.playAnimation(VfxAnimationBuilder.create()
                             .blockState(block, b -> b
                                     .addKeyframe(randomBetween(0.4f, 0.6f),
-                                            Blocks.BLACK_STAINED_GLASS.defaultBlockState()))
+                                            Blocks.STAINED_GLASS.black().defaultBlockState()))
                             .translation(0, 0, 0, t -> t
                                     .addKeyframe(1f, dir.x * radius, randomBetween(-0.5f, 1.5f), dir.z * radius, Easings.EASE_OUT_EXPO))
                             .scale(startScale, s -> s
@@ -362,7 +362,7 @@ public class NovaBombDemo {
                                     VfxEntity mini = VfxEntity.create(level, impact);
                                     level.addEntity(mini);
                                     mini.playAnimation(VfxAnimationBuilder.create()
-                                            .blockState(Blocks.PURPLE_STAINED_GLASS.defaultBlockState(), b -> {})
+                                            .blockState(Blocks.STAINED_GLASS.purple().defaultBlockState(), b -> {})
                                             .scale(0.2f, sc -> sc
                                                     .addKeyframe(1f, 0f, Easings.EASE_OUT_EXPO))
                                             .translation(0, 0, 0, t -> t
