@@ -35,13 +35,17 @@ public class NovaBombDemo {
         Snowball projectile = new Snowball(EntityType.SNOWBALL, level);
         projectile.setPos(spawnPos);
         projectile.setDeltaMovement(look.scale(2f));
-        level.addEntity(projectile);
 
         AtomicBoolean hasExploded = new AtomicBoolean(false);
         Quaternionf coreRotation = new Quaternionf();
 
         VfxEntity core = VfxEntity.createBoundTo(level, projectile);
-        level.addEntity(core);
+        // manually tick the snowball since clientside entities dont really work due to 26.2 changes. dont add it to the level
+        core.setOnTick(vfxEntity -> {
+            if (projectile.isAlive()) {
+                projectile.tick();
+            }
+        });
 
         core.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.CRYING_OBSIDIAN.defaultBlockState(), b -> {})
