@@ -72,4 +72,5 @@ A fluent builder that lets you construct animations declaratively, chaining tran
 # Limitations
 NeoForge 26.1.2+<br>
 This mod is client-only, meaning all effects will have to be triggered with your own code. For instance, sending a packet from server -> client, telling the client to play that animation.<br>
-Animations are designed to be purely visual - do not try to alter the game state using them.
+Animations are designed to be purely visual - do not try to alter the game state using them.<br><br>
+Also, due to the clent-only nature of the mod, display entities do not natively support being saved to the world/persisting animations. You'd have to write your own system for that.
