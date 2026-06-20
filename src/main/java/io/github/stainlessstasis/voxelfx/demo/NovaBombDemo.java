@@ -319,8 +319,6 @@ public class NovaBombDemo {
                     final float seekerOrbitRadius = 5f;
 
                     VfxEntity seeker = VfxEntity.create(level, impact);
-                    seeker.setInfinitePersist(true);
-
                     VfxAnimation seekerFly = VfxAnimationBuilder.create()
                             .blockState(Blocks.AMETHYST_BLOCK.defaultBlockState(), b -> {})
                             .scale(0f, sc -> sc.addKeyframe(1f, 0.3f, Easings.EASE_OUT_EXPO))

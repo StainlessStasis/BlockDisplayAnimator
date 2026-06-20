@@ -108,8 +108,6 @@ public class VfxDemos {
     public static void demoPlaybackControls(ClientLevel level, LocalPlayer player) {
         Vec3 pos = getFrontPosition(player);
         VfxEntity entity = VfxEntity.create(level, pos);
-        entity.setInfinitePersist(true);
-
 
         entity.playAnimation(VfxAnimationBuilder.create()
                 .blockState(Blocks.EMERALD_BLOCK.defaultBlockState(), builder -> {})
