@@ -7,7 +7,7 @@ Make cool VFX like this:
 # Features
 
 ### Animated Block & Item Displays
-Animate blocks and items separately or together.
+Animate block and item displays separately or together.
 
 <details>
 <summary><b>View Demo</b></summary>
@@ -16,7 +16,7 @@ Animate blocks and items separately or together.
 </details>
 
 ### Keyframes & Easings
-Every easing function from [easings.net](https://easings.net/) is built in, and you can register your own custom easing functions.
+Use keyframes with easings to make super smooth animations for any movement you want. Reference [easings.net](https://easings.net/) to visualize easings, or test them out in game.
 
 <details>
 <summary><b>View Demo</b></summary>
@@ -74,3 +74,18 @@ NeoForge 26.1.2+<br>
 This mod is client-only, meaning all effects will have to be triggered with your own code. For instance, sending a packet from server -> client, telling the client to play that animation.<br>
 Animations are designed to be purely visual - do not try to alter the game state using them.<br><br>
 Also, due to the clent-only nature of the mod, display entities do not natively support being saved to the world/persisting animations. You'd have to write your own system for that.
+
+# General Use:
+VoxelFX has some commands that can be run with `/voxelfx`. Most notably, the `demo` command can be used to run built-in demo animations. 
+Also important - the `clear` command will clear out the entity cache, removing all VFX entities in case anything breaks.<br>
+You can also pause, resume, stop, or set the play speed of all VFX entities.
+*This is not a global state - it applies only to the entities that exist when the command is run.*
+
+# Documentation
+See the [wiki](https://github.com/StainlessStasis/VoxelFX/wiki/Getting-Started).
+
+# License:
+I have licensed the mod as ARR simply because I don't know how to write something legally binding. However, you may port this mod to any version BELOW 26.1.2 as long as you:
+1) Contact me and get my approval (`stasis_the_shattered` on Discord)
+2) Credit the original mod by either linking to its Modrinth page, or the GitHub repo
+3) Make your port open source and non-commericial (revenue from Modrinth/Curseforge creator programs is fine obviously)
