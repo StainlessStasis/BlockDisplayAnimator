@@ -71,8 +71,7 @@ public class VfxEntityCache {
         for (VfxEntity entity : INSTANCE.active) {
             VfxEntityRenderer renderer = (VfxEntityRenderer) dispatcher.getRenderer(entity);
 
-            VfxEntityRenderState state = renderer.createRenderState();
-            renderer.extractRenderState(entity, state, partialTick);
+            VfxEntityRenderState state = renderer.createRenderState(entity, partialTick);
 
             poseStack.pushPose();
             poseStack.translate(state.x - camPos.x, state.y - camPos.y, state.z - camPos.z);

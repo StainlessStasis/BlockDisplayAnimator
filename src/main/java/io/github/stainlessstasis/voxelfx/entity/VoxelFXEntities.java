@@ -21,11 +21,13 @@ public class VoxelFXEntities {
                             VfxEntity::new,
                             MobCategory.MISC
                     )
+                    .sized(0, 0)
+                    .clientTrackingRange(16)
+                    .updateInterval(1)
                     .noSave()
                     .noSummon()
                     .fireImmune()
                     .canSpawnFarFromPlayer()
-                    .clientTrackingRange(16)
                     .build(ResourceKey.create(
                             Registries.ENTITY_TYPE,
                             Identifier.fromNamespaceAndPath(VoxelFX.MODID, "vfx_entity")

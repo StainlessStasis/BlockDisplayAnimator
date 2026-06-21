@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -225,6 +226,18 @@ public class VfxEntityRenderer extends EntityRenderer<VfxEntity, VfxEntityRender
     @Override
     protected @NonNull AABB getBoundingBoxForCulling(@NonNull VfxEntity entity) {
         return entity.getBoundingBox().inflate(entity.getCullingRadius());
+    }
+
+    @Override
+    protected int getSkyLightLevel(@NonNull VfxEntity entity, @NonNull BlockPos blockPos) {
+        int packedBrightnessOverride = entity.getBrightnessOverride();
+        return packedBrightnessOverride != -1 ? LightCoordsUtil.sky(packedBrightnessOverride) : super.getSkyLightLevel(entity, blockPos);
+    }
+
+    @Override
+    protected int getBlockLightLevel(@NonNull VfxEntity entity, @NonNull BlockPos blockPos) {
+        int packedBrightnessOverride = entity.getBrightnessOverride();
+        return packedBrightnessOverride != -1 ? LightCoordsUtil.block(packedBrightnessOverride) : super.getBlockLightLevel(entity, blockPos);
     }
 
     @Override
